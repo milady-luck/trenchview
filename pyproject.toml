@@ -1,0 +1,19 @@
+[tool.poetry]
+name = "tgtools"
+version = "0.1.0"
+description = "tg tools for making sense of hyperactive groupchats"
+authors = ["milady-luck <luck.l89@yahoo.com>"]
+license = "MIT"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.13"
+Telethon = "^1.37.0"
+click = "^8.1.7"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.3.3"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
