@@ -20,20 +20,22 @@ class TgMessage(NamedTuple):
     message: str
 
     # TODO: make these class constructors work
-    async def from_telethon_msg(client, telethon_msg) -> TgMessage:
+    @classmethod
+    async def from_telethon_msg(cls, client, telethon_msg):
         # get user from client
         uid = telethon_msg.from_id.user_id
 
         user = await client.get_entity(uid)
-        return TgMessage(
+        return cls(
             telethon_msg.id,
             TgUser(uid, user.username),
             telethon_msg.message
         )
 
-    async def from_id(client, msg_id) -> TgMessage:
+    @classmethod
+    async def from_id(cls, client, msg_id):
         msg = await client.get_entity(msg_id)
-        return TgMessage.from_telethon_msg(client, msg)
+        return cls.from_telethon_msg(client, msg)
 
 # NOTE: assuming this is static for now
 RICK_NAME = "RickBurpBot"
@@ -62,7 +64,7 @@ async def get_recent_rickbot_messages(
             min_id=0
         )
         id_to_msg = {msg.id: msg for msg in messages}
-        rick_msgs = [msg for msg in messages if msg.from_id.user_id == rick.id]
+        rick_msgs = [msg for msg in messages if msg.from_id.user_id == RICK_ID]
 
         # for all rickbot messages, get the parent message too and create a TgRickbotMessage
         ret = []
@@ -84,6 +86,7 @@ async def get_recent_rickbot_messages(
 
         return ret
 
+# NOTE: just for testing
 if __name__ == "__main__":
     import json
 
@@ -104,6 +107,6 @@ if __name__ == "__main__":
         print_recent_rickbot_messages(
             client, 
             TARGET_GROUP_ID, 
-            datetime.now() - timedelta(minutes=10)
+            datetime.now() - timedelta(minutes=5)
         )
     )
