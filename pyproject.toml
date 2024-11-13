@@ -17,3 +17,39 @@ pytest = "^8.3.3"
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.ruff]
+# Enable pycodestyle (E), pyflakes (F), isort (I), and several other rule families
+select = [
+    "E",
+    "F",
+    "I",
+    "B",
+    "W",
+    "C90",
+    "N",
+    "UP",
+    "ASYNC",
+    "S",
+    "ISC",
+    "TCH",
+    "PTH",
+]
+ignore = []
+
+# Target Python 3.13
+target-version = "py313"
+
+# Line length is set to 88 (same as Black's default)
+line-length = 88
+
+# Sort imports
+[tool.ruff.isort]
+known-first-party = ["tgtools"] # adjust this to your project name
+
+# Additional configurations
+[tool.ruff.mccabe]
+max-complexity = 10
+
+[tool.ruff.flake8-quotes]
+docstring-quotes = "double"
