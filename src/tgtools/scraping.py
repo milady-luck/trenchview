@@ -3,45 +3,14 @@ import json
 import logging
 import os
 from datetime import datetime, timedelta
-from typing import NamedTuple
 
 from telethon import TelegramClient
 
-
-class TgUser(NamedTuple):
-    uid: int
-    uname: str
-
-
-# NOTE: should I include datetime here too? Probably, for sorting
-class TgMessage(NamedTuple):
-    msg_id: int
-
-    sender: TgUser
-    message: str
-
-    @classmethod
-    async def from_telethon_msg(cls, client, telethon_msg):
-        # get user from client
-        uid = telethon_msg.from_id.user_id
-
-        user = await client.get_entity(uid)
-        return cls(telethon_msg.id, TgUser(uid, user.username), telethon_msg.message)
-
-    @classmethod
-    async def from_id(cls, client, msg_id):
-        msg = await client.get_entity(msg_id)
-        return cls.from_telethon_msg(client, msg)
-
+from tgtools.types import TgMessage, TgRickbotMessage, TgUser
 
 # NOTE: assuming this is static for now
 RICK_NAME = "RickBurpBot"
 RICK_ID = 6126376117
-
-
-class TgRickbotMessage(NamedTuple):
-    call_msg: TgMessage  # NOTE: None implies no caller (i.e. Rickbot ad)
-    resp_msg: TgMessage
 
 
 # NOTE: gets rickbot messages + rick caller
