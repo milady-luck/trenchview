@@ -7,6 +7,7 @@ import asyncio
 import os
 import sys
 import json
+import logging
 
 class TgUser(NamedTuple):
     uid: int
@@ -52,10 +53,11 @@ async def get_recent_rickbot_messages(
     start_time: datetime
 ) -> list[TgRickbotMessage]:
     client = TelegramClient('coin-mentions', API_ID, API_HASH)
+    logger = logging.getLogger(__name__)
 
     async with client:
+        logger.info(f"getting recent rickbot messages from {group_id} since {start_time}")
         group = await client.get_entity(group_id)
-
         messages = await client.get_messages(
             group, 
             reverse=True, # necessary for offset_date to be min_date
@@ -63,8 +65,10 @@ async def get_recent_rickbot_messages(
             max_id=0, 
             min_id=0
         )
+        logger.info(f"got {len(messages)} total messages")
         id_to_msg = {msg.id: msg for msg in messages}
         rick_msgs = [msg for msg in messages if msg.from_id.user_id == RICK_ID]
+        logger.info(f"got {len(rick_msgs)} rickbot messages")
 
         # for all rickbot messages, get the parent message too and create a TgRickbotMessage
         ret = []
@@ -74,6 +78,7 @@ async def get_recent_rickbot_messages(
             resp_msg = TgMessage(msg.id, TgUser(RICK_ID, RICK_NAME), msg.message)
 
             if msg.reply_to_msg_id:
+                logger.info(f"adding caller for msg {msg.reply_to_msg_id}")
                 # if call message in id_to_msg, great. if not, go get it and add to map
                 reply_to_id = msg.reply_to_msg_id
                 if msg.reply_to_msg_id in id_to_msg:
@@ -101,6 +106,14 @@ if __name__ == "__main__":
     TARGET_GROUP_ID = -1001639107971 
 
     client = TelegramClient('testing-rick-scraper', API_ID, API_HASH)
+
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+        force=True,
+        handlers=[logging.StreamHandler()]
+    )
+    logging.getLogger(__name__).info(f"logging set up")
 
     loop = asyncio.get_event_loop()
     loop.run_until_complete(
