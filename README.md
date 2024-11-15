@@ -1,3 +1,3 @@
 # tg-tools
 
-testing
+`poetry run tgtools recent-calls`
