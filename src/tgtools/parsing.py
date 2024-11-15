@@ -5,9 +5,18 @@ import re
 
 from tgtools.types import CoinCall, ParsedCoinCallResp, TgRickbotMessage
 
-TICKER_RE = r"(?:^|\s)\$(\w+)(?:\s|$)"
 EX_CHAIN_RE = r"(\w+)\s+@\s+(\w+)"
 FDV_RE = r"\$(\d+(?:\.\d+)?(?:[KMB])?)"
+
+TICKER_RE = r"(?<=\$)(\$*[^\s]+)"
+
+
+def find_ticker(line):
+    matches = re.findall(TICKER_RE, line)
+    if len(matches) == 0:
+        return None
+
+    return matches[0]
 
 
 def parse_fdv(fdv_line):
@@ -38,11 +47,9 @@ def parse_coin_call_resp(msg: str) -> ParsedCoinCallResp:
     if len(lines) < 15:
         return None
 
-    ticker_match = re.search(TICKER_RE, lines[0])
-    if not ticker_match:
-        print(f"couldn't find ticker in {msg}")
+    ticker = find_ticker(lines[0])
+    if ticker is None:
         return None
-    ticker = ticker_match.group(1)
 
     ex_chain_match = re.search(EX_CHAIN_RE, lines[1])
     if not ex_chain_match:
@@ -63,6 +70,17 @@ def parse_coin_call_resp(msg: str) -> ParsedCoinCallResp:
     return ParsedCoinCallResp(ticker, chain, exchange, call_fdv, ath_fdv)
 
 
+def get_tg_url(group_id: int, msg_id: int):
+    # TODO: group id slightly different than what's returned by telethon
+    return "TODO"
+    # return f"t.me/c/{group_id}/{msg_id}"
+
+
 # NOTE: returns none if not a coin call
 def parse_coin_call(msg: TgRickbotMessage) -> CoinCall:
-    return None
+    parsed_resp = parse_coin_call_resp(msg.resp_msg.message)
+
+    temp_group_id = -1001639107971
+    tg_url = get_tg_url(temp_group_id, msg.resp_msg.msg_id)
+
+    return CoinCall(msg.call_msg.sender.uname, tg_url, parsed_resp)
