@@ -98,16 +98,3 @@ TRO⋅STB⋅PHO⋅BLX⋅EXP⋅RUG⋅TW
         assert parsed == expected
 
     # TODO: test non-call messages
-
-
-RICK_USER = TgUser(0, "RickBurpBot")
-
-
-# def construct_call(call_msg: str, resp_msg):
-#     return TgRickbotMessage(
-#         TgMessage(0, USER1, call_msg), TgMessage(1, RICK_USER, resp_msg)
-#     )
-
-
-# class TestE2EParse:
-#     pass
