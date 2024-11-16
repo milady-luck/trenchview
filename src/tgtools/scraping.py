@@ -1,8 +1,5 @@
-import asyncio
-import json
 import logging
-import os
-from datetime import datetime, timedelta
+from datetime import datetime
 
 from telethon import TelegramClient
 
@@ -17,10 +14,10 @@ RICK_ID = 6126376117
 async def get_recent_rickbot_messages(
     client: TelegramClient, group_id: int, start_time: datetime
 ) -> list[TgRickbotMessage]:
-    logger = logging.getLogger(__name__)
+    logger = logging.getLogger("tgtools")
 
     async with client:
-        logger.info(
+        logger.debug(
             f"getting recent rickbot messages from {group_id} since {start_time}"
         )
         group = await client.get_entity(group_id)
@@ -31,11 +28,12 @@ async def get_recent_rickbot_messages(
             max_id=0,
             min_id=0,
         )
-        logger.info(f"got {len(messages)} total messages")
+        logger.debug(f"got {len(messages)} total messages")
         id_to_msg = {msg.id: msg for msg in messages}
         rick_msgs = [msg for msg in messages if msg.from_id.user_id == RICK_ID]
-        logger.info(f"got {len(rick_msgs)} rickbot messages")
+        logger.debug(f"got {len(rick_msgs)} rickbot messages")
 
+        # NOTE: this takes quite a while; perhaps we don't always need caller
         # for all rickbot messages, get the parent message too and create a TgRickbotMessage
         ret = []
         for msg in rick_msgs:
@@ -44,7 +42,6 @@ async def get_recent_rickbot_messages(
             resp_msg = TgMessage(msg.id, TgUser(RICK_ID, RICK_NAME), msg.message)
 
             if msg.reply_to_msg_id:
-                logger.info(f"adding caller for msg {msg.reply_to_msg_id}")
                 # if call message in id_to_msg, great. if not, go get it and add to map
                 reply_to_id = msg.reply_to_msg_id
                 if msg.reply_to_msg_id in id_to_msg:
@@ -56,5 +53,6 @@ async def get_recent_rickbot_messages(
                     call_msg = await TgMessage.from_id(client, reply_to_id)
 
             ret.append(TgRickbotMessage(call_msg, resp_msg))
+        logger.debug("added caller for relevant messages")
 
         return ret
