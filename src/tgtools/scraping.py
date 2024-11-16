@@ -17,7 +17,6 @@ RICK_ID = 6126376117
 async def get_recent_rickbot_messages(
     client: TelegramClient, group_id: int, start_time: datetime
 ) -> list[TgRickbotMessage]:
-    client = TelegramClient("coin-mentions", API_ID, API_HASH)
     logger = logging.getLogger(__name__)
 
     async with client:

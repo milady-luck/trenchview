@@ -48,7 +48,7 @@ def parse_coin_call_resp(msg: str) -> ParsedCoinCallResp:
         return None
 
     ticker = find_ticker(lines[0])
-    if ticker is None:
+    if not ticker:
         return None
 
     ex_chain_match = re.search(EX_CHAIN_RE, lines[1])
@@ -79,6 +79,8 @@ def get_tg_url(group_id: int, msg_id: int):
 # NOTE: returns none if not a coin call
 def parse_coin_call(msg: TgRickbotMessage) -> CoinCall:
     parsed_resp = parse_coin_call_resp(msg.resp_msg.message)
+    if not parsed_resp or not msg.call_msg:
+        return None
 
     temp_group_id = -1001639107971
     tg_url = get_tg_url(temp_group_id, msg.resp_msg.msg_id)
