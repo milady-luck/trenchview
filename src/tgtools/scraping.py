@@ -58,34 +58,3 @@ async def get_recent_rickbot_messages(
             ret.append(TgRickbotMessage(call_msg, resp_msg))
 
         return ret
-
-
-# NOTE: just for testing, remove
-if __name__ == "__main__":
-    import json
-
-    async def print_recent_rickbot_messages(client, group_id, start_time):
-        rickbot_msgs = await get_recent_rickbot_messages(client, group_id, start_time)
-        for msg in rickbot_msgs:
-            print(json.dumps(msg._asdict(), indent=4))
-
-    API_ID = int(os.getenv("TG_API_ID"))
-    API_HASH = os.getenv("TG_API_HASH")
-    TARGET_GROUP_ID = -1001639107971
-
-    client = TelegramClient("testing-rick-scraper", API_ID, API_HASH)
-
-    logging.basicConfig(
-        level=logging.INFO,
-        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-        force=True,
-        handlers=[logging.StreamHandler()],
-    )
-    logging.getLogger(__name__).info("logging set up")
-
-    loop = asyncio.get_event_loop()
-    loop.run_until_complete(
-        print_recent_rickbot_messages(
-            client, TARGET_GROUP_ID, datetime.now() - timedelta(minutes=5)
-        )
-    )
