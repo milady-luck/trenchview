@@ -10,6 +10,24 @@ RICK_NAME = "RickBurpBot"
 RICK_ID = 6126376117
 
 
+async def get_last_msg(client: TelegramClient, group_id: int):
+    logger = logging.getLogger("tgtools")
+
+    async with client:
+        logger.debug(f"getting last message in {group_id}")
+
+        group = await client.get_entity(group_id)
+        messages = await client.get_messages(
+            group,
+        )
+
+        if len(messages) > 0:
+            return messages[0]
+
+        else:
+            return None
+
+
 # NOTE: gets rickbot messages + rick caller
 async def get_recent_rickbot_messages(
     client: TelegramClient, group_id: int, start_time: datetime

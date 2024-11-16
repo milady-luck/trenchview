@@ -6,9 +6,9 @@ from logging.handlers import RotatingFileHandler
 
 import click
 
-from tgtools.formatting import format_coin_calls
+from tgtools.formatting import discover_and_print, format_coin_calls
 from tgtools.parsing import parse_coin_call
-from tgtools.scraping import get_recent_rickbot_messages
+from tgtools.scraping import get_last_msg, get_recent_rickbot_messages
 from tgtools.telethon import build_telethon_client
 
 
@@ -79,6 +79,18 @@ def recent_calls(mins, group_id):
     logger.info(f"{len(calls)} calls found")
 
     print(format_coin_calls(calls))
+
+
+@cli.command()
+@click.option("--group-id", default=-1001639107971)  # default to the lab
+def last_msg(group_id):
+    # NOTE: testing method just to see what latest message format is
+    tg_client = build_telethon_client("tgtools-last-msg")
+
+    loop = asyncio.get_event_loop()
+    message = loop.run_until_complete(get_last_msg(tg_client, group_id))
+
+    discover_and_print(message)
 
 
 if __name__ == "__main__":
