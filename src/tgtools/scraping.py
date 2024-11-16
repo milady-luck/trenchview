@@ -33,11 +33,10 @@ async def get_recent_rickbot_messages(
         rick_msgs = [msg for msg in messages if msg.from_id.user_id == RICK_ID]
         logger.debug(f"got {len(rick_msgs)} rickbot messages")
 
-        # NOTE: this takes quite a while; perhaps we don't always need caller
-        # for all rickbot messages, get the parent message too and create a TgRickbotMessage
+        # for all rickbot messages, get the parent message too and create a
+        # TgRickbotMessage
         ret = []
         for msg in rick_msgs:
-            # rick message
             call_msg = None
             resp_msg = TgMessage(msg.id, TgUser(RICK_ID, RICK_NAME), msg.message)
 

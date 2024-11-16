@@ -6,6 +6,7 @@ from logging.handlers import RotatingFileHandler
 
 import click
 
+from tgtools.formatting import format_coin_calls
 from tgtools.parsing import parse_coin_call
 from tgtools.scraping import get_recent_rickbot_messages
 from tgtools.telethon import build_telethon_client
@@ -77,11 +78,7 @@ def recent_calls(mins, group_id):
     )
     logger.info(f"{len(calls)} calls found")
 
-    # TODO: format calls
-    # click.echo(calls)
-    # TODO: remove
-    # for m in calls:
-    #     print(m.resp_msg.message)
+    print(format_coin_calls(calls))
 
 
 if __name__ == "__main__":

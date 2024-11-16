@@ -18,6 +18,8 @@ class TgMessage(NamedTuple):
         # get user from client
         uid = telethon_msg.from_id.user_id
 
+        # NOTE: maybe we don't want to do this every time here! reduce number of
+        # get_entity calls
         user = await client.get_entity(uid)
         return cls(telethon_msg.id, TgUser(uid, user.username), telethon_msg.message)
 

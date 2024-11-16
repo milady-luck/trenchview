@@ -1,6 +1,3 @@
-# diff message categories:
-# calls, price checks, tweets, ads
-
 import logging
 import re
 
