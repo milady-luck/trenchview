@@ -63,19 +63,26 @@ async def _recent_calls(tg_client, group_id, prev_time):
 
 
 @cli.command()
-@click.option("--mins", default=60)
+@click.option("--days", "-d", type=int, default=0, help="Number of days (default: 0)")
+@click.option("--hours", "-h", type=int, default=0, help="Number of hours (default: 0)")
+@click.option(
+    "--mins", "-m", type=int, default=0, help="Number of minutes (default: 0)"
+)
 @click.option("--group-id", default=-1001639107971)  # default to the lab
-def recent_calls(mins, group_id):
+def recent_calls(days, hours, mins, group_id):
     logger = logging.getLogger("tgtools")
+
+    if days == 0 and hours == 0 and mins == 0:
+        td = timedelta(hours=1)
+    else:
+        td = timedelta(days=days, hours=hours, minutes=mins)
+
+    prev_time = datetime.now() - td
+
     tg_client = build_telethon_client("tgtools-recent-calls")
 
-    prev_time = datetime.now() - timedelta(minutes=mins)
-
     loop = asyncio.get_event_loop()
-    calls = loop.run_until_complete(
-        # TODO: make this a composition with parsing, formatting
-        _recent_calls(tg_client, group_id, prev_time)
-    )
+    calls = loop.run_until_complete(_recent_calls(tg_client, group_id, prev_time))
     logger.info(f"{len(calls)} calls found")
 
     print(format_coin_calls(calls))
