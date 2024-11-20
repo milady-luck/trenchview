@@ -2,13 +2,13 @@ from pprint import pprint
 
 from tabulate import tabulate
 
-from tgtools.types import CoinCall
+from tgtools.types import CoinCall, ParsedCoinCallResp
 
 TABLE_ROW_HEADERS = ["ticker", "call-fdv ($)", "ath-fdv ($)", "caller", "timestamp"]
 
 
-# TODO: format fdvs
-def extract_table_row(call: CoinCall):
+# NOTE: change this and the method below in lock step! might be worth writing a test...
+def coincall_to_row(call: CoinCall) -> list[str]:
     return [
         call.parsed_resp.ticker,
         f"{call.parsed_resp.call_fdv:,.2f}",
@@ -16,6 +16,20 @@ def extract_table_row(call: CoinCall):
         call.caller_username,
         "TODO",  # TODO: timestamp
     ]
+
+
+def row_to_coincall(row: list[str]) -> CoinCall:
+    return CoinCall(
+        row[3],
+        "N/A",
+        ParsedCoinCallResp(
+            row[0],
+            "N/A",
+            "N/A",
+            float(row[1].replace(",", "")),
+            float(row[2].replace(",", "")),
+        ),
+    )
 
 
 def format_coin_calls(coin_calls: list[CoinCall]) -> str:
@@ -27,7 +41,7 @@ def format_coin_calls(coin_calls: list[CoinCall]) -> str:
         reverse=True,
     )
 
-    table_rows = [extract_table_row(call) for call in fdv_sorted_calls]
+    table_rows = [coincall_to_row(call) for call in fdv_sorted_calls]
 
     return tabulate(table_rows, headers=TABLE_ROW_HEADERS)
 
