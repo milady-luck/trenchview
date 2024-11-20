@@ -48,24 +48,8 @@ class TgMessage(NamedTuple):
                 telethon_msg.id, TgUser(uid, UNKNOWN_FIELD), telethon_msg.message
             )
 
-    # FIXME
-    @classmethod
-    async def from_id(cls, client, msg_id):
-        # TODO: move this and above client call into its own lib that manages client connections
-        logger = logging.getLogger(
-            "tgtools"
-        )  # NOTE: definitely should *not* access logger here!
-        # that lib should be teh thing that does logging
-        try:
-            msg = await client.get_entity(msg_id)
-            return cls.from_telethon_msg(client, msg)
 
-        except ValueError:
-            # FIXME: why is this happening
-            logger.warning(f"couldn't find message with id {msg_id}")
-            return None
-
-
+# TODO: exclude messages w/o a caller and change this to be something more indicative of that
 class TgRickbotMessage(NamedTuple):
     call_msg: TgMessage  # NOTE: None implies no caller (i.e. Rickbot ad)
     resp_msg: TgMessage

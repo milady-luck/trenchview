@@ -61,16 +61,14 @@ async def get_recent_rickbot_messages(
                 msg.id, TgUser(RICK_ID, RICK_NAME), msg.message, msg.date
             )
 
-            if msg.reply_to_msg_id:
-                # if call message in id_to_msg, great. if not, go get it and add to map
-                reply_to_id = msg.reply_to_msg_id
-                if msg.reply_to_msg_id in id_to_msg:
-                    call_msg = await TgMessage.from_telethon_msg(
-                        client, id_to_msg[msg.reply_to_msg_id]
-                    )
+            # only include callers for messages whose caller is *also* in the window
+            if msg.reply_to_msg_id and msg.reply_to_msg_id in id_to_msg:
+                # TODO: retry logic here to avoid floodwait errors
 
-                else:
-                    call_msg = await TgMessage.from_id(client, reply_to_id)
+                # get user for message, add as caller
+                call_msg = await TgMessage.from_telethon_msg(
+                    client, id_to_msg[msg.reply_to_msg_id]
+                )
 
             ret.append(TgRickbotMessage(call_msg, resp_msg))
         logger.debug("added caller for relevant messages")
