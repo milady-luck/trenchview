@@ -42,7 +42,7 @@ CAL | MNZ | MAG | ORC | FLX | SRM
 🏆 [redacted] @ 15.6K 👀 211
 ⚔️ TIP: Farm Cambria Duel Arena"""
         parsed = parse_coin_call_resp(s)
-        expected = ParsedCoinCallResp("NICK", "Solana", "Raydium", 694_000.0, 694_000.0)
+        expected = ParsedCoinCallResp("NICK", "Solana", "Raydium", 694_000.0)
 
         assert parsed == expected
 
@@ -67,7 +67,7 @@ TRO⋅STB⋅PHO⋅BLX⋅GMG⋅EXP⋅TW
 📈 TIP: Trade pump.fun on Photon"""
         parsed = parse_coin_call_resp(s)
         expected = ParsedCoinCallResp(
-            "NAILONG", "Solana", "Raydium", 25_700_000.0, 27_800_000.0
+            "NAILONG", "Solana", "Raydium", 25_700_000.0
         )
 
         assert parsed == expected
@@ -92,9 +92,7 @@ TRO⋅STB⋅PHO⋅BLX⋅EXP⋅RUG⋅TW
 📢 AD: Snipe, trade & win 10 $SOL - DEX3"""
         parsed = parse_coin_call_resp(s)
         expected = ParsedCoinCallResp(
-            "$WIF", "Solana", "Orca", 1_700_000_000, 3_400_000_000
+            "$WIF", "Solana", "Orca", 1_700_000_000
         )
 
         assert parsed == expected
-
-    # TODO: test non-call messages
