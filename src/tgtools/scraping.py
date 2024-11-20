@@ -51,12 +51,15 @@ async def get_recent_rickbot_messages(
         rick_msgs = [msg for msg in messages if msg.from_id.user_id == RICK_ID]
         logger.debug(f"got {len(rick_msgs)} rickbot messages")
 
+        # NOTE: for 1-2 day scrapes, this is the thing that takes all the time
         # for all rickbot messages, get the parent message too and create a
         # TgRickbotMessage
         ret = []
         for msg in rick_msgs:
             call_msg = None
-            resp_msg = TgMessage(msg.id, TgUser(RICK_ID, RICK_NAME), msg.message)
+            resp_msg = TgMessage(
+                msg.id, TgUser(RICK_ID, RICK_NAME), msg.message, msg.date
+            )
 
             if msg.reply_to_msg_id:
                 # if call message in id_to_msg, great. if not, go get it and add to map

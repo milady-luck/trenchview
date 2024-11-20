@@ -70,12 +70,7 @@ def parse_coin_call_resp(msg: str) -> ParsedCoinCallResp:
         logger.warning(f"couldn't find call fdv in {msg}")
         return None
 
-    ath_fdv = parse_fdv(lines[6])
-    if not ath_fdv:
-        logger.warning(f"couldn't find ath fdv in {msg}")
-        return None
-
-    return ParsedCoinCallResp(ticker, chain, exchange, call_fdv, ath_fdv)
+    return ParsedCoinCallResp(ticker, chain, exchange, call_fdv)
 
 
 def get_tg_url(group_id: int, msg_id: int):
@@ -94,7 +89,13 @@ def parse_coin_call(msg: TgRickbotMessage) -> CoinCall:
         return None
 
     # TODO: where should this be specified?
-    temp_group_id = -1001639107971
-    tg_url = get_tg_url(temp_group_id, msg.resp_msg.msg_id)
+    # temp_group_id = -1001639107971
+    # tg_url = get_tg_url(temp_group_id, msg.resp_msg.msg_id)
 
-    return CoinCall(msg.call_msg.sender.uname, tg_url, parsed_resp)
+    # TODO: timestamp
+    return CoinCall(
+        msg.call_msg.sender.uname,
+        parsed_resp.ticker,
+        parsed_resp.call_fdv,
+        msg.call_msg.dt,
+    )

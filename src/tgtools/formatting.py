@@ -1,34 +1,35 @@
+from datetime import datetime
 from pprint import pprint
 
+import pytz
 from tabulate import tabulate
 
-from tgtools.types import CoinCall, ParsedCoinCallResp
+from tgtools.types import CoinCall
 
-TABLE_ROW_HEADERS = ["ticker", "call-fdv ($)", "ath-fdv ($)", "caller", "timestamp"]
+TABLE_ROW_HEADERS = ["caller", "ticker", "call-fdv ($)", "dt"]
+
+
+DT_FORMAT = "%Y-%m-%d %H:%M:%S"
+
+
+def format_dt(dt: datetime):
+    local_tz = pytz.timezone("America/Los_Angeles")
+    local_dt = dt.astimezone(local_tz)
+
+    return local_dt.strftime(DT_FORMAT)
 
 
 # NOTE: change this and the method below in lock step! might be worth writing a test...
 def coincall_to_row(call: CoinCall) -> list[str]:
-    return [
-        call.parsed_resp.ticker,
-        f"{call.parsed_resp.call_fdv:,.2f}",
-        f"{call.parsed_resp.ath_fdv:,.2f}",
-        call.caller_username,
-        "TODO",  # TODO: timestamp
-    ]
+    return [call.caller, call.ticker, f"{call.call_fdv:,.2f}", format_dt(call.dt)]
 
 
 def row_to_coincall(row: list[str]) -> CoinCall:
     return CoinCall(
-        row[3],
-        "N/A",
-        ParsedCoinCallResp(
-            row[0],
-            "N/A",
-            "N/A",
-            float(row[1].replace(",", "")),
-            float(row[2].replace(",", "")),
-        ),
+        row[0],
+        row[1],
+        float(row[2].replace(",", "")),
+        datetime.strptime(row[3], DT_FORMAT),
     )
 
 
@@ -37,7 +38,7 @@ def format_coin_calls(coin_calls: list[CoinCall]) -> str:
 
     fdv_sorted_calls = sorted(
         coin_calls,
-        key=lambda x: (x.parsed_resp.ath_fdv, x.parsed_resp.call_fdv),
+        key=lambda x: x.call_fdv,
         reverse=True,
     )
 
