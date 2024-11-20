@@ -3,10 +3,9 @@ from datetime import datetime
 
 from telethon import TelegramClient
 
-from tgtools.types import TgMessage, TgRickbotMessage, TgUser
+from tgtools.types import UnparsedRickbotCall
 
 # NOTE: assuming this is static for now
-RICK_NAME = "RickBurpBot"
 RICK_ID = 6126376117
 
 
@@ -28,10 +27,10 @@ async def get_last_msg(client: TelegramClient, group_id: int):
             return None
 
 
-# NOTE: gets rickbot messages + rick caller
-async def get_recent_rickbot_messages(
+# NOTE: gets rickbot messages + rick caller (i.e. joins appropriately)
+async def get_recent_rickbot_calls(
     client: TelegramClient, group_id: int, start_time: datetime
-) -> list[TgRickbotMessage]:
+) -> list[UnparsedRickbotCall]:
     logger = logging.getLogger("tgtools")
 
     async with client:
@@ -49,28 +48,20 @@ async def get_recent_rickbot_messages(
         logger.debug(f"got {len(messages)} total messages")
         id_to_msg = {msg.id: msg for msg in messages}
         rick_msgs = [msg for msg in messages if msg.from_id.user_id == RICK_ID]
+
         logger.debug(f"got {len(rick_msgs)} rickbot messages")
 
-        # NOTE: for 1-2 day scrapes, this is the thing that takes all the time
         # for all rickbot messages, get the parent message too and create a
-        # TgRickbotMessage
+        # UnparsedRickbotCall
         ret = []
         for msg in rick_msgs:
-            call_msg = None
-            resp_msg = TgMessage(
-                msg.id, TgUser(RICK_ID, RICK_NAME), msg.message, msg.date
-            )
-
             # only include callers for messages whose caller is *also* in the window
             if msg.reply_to_msg_id and msg.reply_to_msg_id in id_to_msg:
-                # TODO: retry logic here to avoid floodwait errors
+                call_msg = id_to_msg[msg.reply_to_msg_id]
+                caller = call_msg.sender.username
 
-                # get user for message, add as caller
-                call_msg = await TgMessage.from_telethon_msg(
-                    client, id_to_msg[msg.reply_to_msg_id]
-                )
+                ret.append(UnparsedRickbotCall(caller, msg.message, msg.date))
 
-            ret.append(TgRickbotMessage(call_msg, resp_msg))
         logger.debug("added caller for relevant messages")
 
         return ret

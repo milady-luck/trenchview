@@ -3,7 +3,7 @@ import logging
 import pytest
 
 from tgtools.parsing import parse_coin_call_resp, find_ticker
-from tgtools.types import ParsedCoinCallResp, TgUser
+from tgtools.parsing import ParsedCoinCallResp
 
 logger = logging.getLogger(__name__)
 

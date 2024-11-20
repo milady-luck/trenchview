@@ -1,7 +1,11 @@
 import logging
 import re
+from typing import NamedTuple
 
-from tgtools.types import CoinCall, ParsedCoinCallResp, TgRickbotMessage
+from tgtools.types import (
+    CoinCall,
+    UnparsedRickbotCall,
+)
 
 EX_CHAIN_RE = r"(\w+)\s+@\s+(\w+)"
 FDV_RE = r"\$(\d+(?:\.\d+)?(?:[KMB])?)"
@@ -39,6 +43,14 @@ def parse_fdv(fdv_line):
     return float(amount_str) * multiplier
 
 
+class ParsedCoinCallResp(NamedTuple):
+    ticker: str
+    chain: str
+    exchange: str
+
+    call_fdv: float
+
+
 # TODO: change print statements out with logging statements
 def parse_coin_call_resp(msg: str) -> ParsedCoinCallResp:
     logger = logging.getLogger("tgtools")
@@ -58,7 +70,6 @@ def parse_coin_call_resp(msg: str) -> ParsedCoinCallResp:
 
     ex_chain_match = re.search(EX_CHAIN_RE, lines[1])
     if not ex_chain_match:
-        # FIXME
         # TODO: this can happen for pump.fun non-graduated coins!
         logger.warning(f"couldn't find chain/exchange str in {msg}")
         chain, exchange = "Unknown", "Unknown"
@@ -80,11 +91,8 @@ def get_tg_url(group_id: int, msg_id: int):
 
 
 # NOTE: returns none if not a coin call
-def parse_coin_call(msg: TgRickbotMessage) -> CoinCall:
-    if not msg.call_msg:
-        return None
-
-    parsed_resp = parse_coin_call_resp(msg.resp_msg.message)
+def parse_coin_call(msg: UnparsedRickbotCall) -> CoinCall:
+    parsed_resp = parse_coin_call_resp(msg.rickbot_message)
     if not parsed_resp:
         return None
 
@@ -94,8 +102,8 @@ def parse_coin_call(msg: TgRickbotMessage) -> CoinCall:
 
     # TODO: timestamp
     return CoinCall(
-        msg.call_msg.sender.uname,
+        msg.caller,
         parsed_resp.ticker,
         parsed_resp.call_fdv,
-        msg.call_msg.dt,
+        msg.dt,
     )

@@ -9,7 +9,7 @@ import click
 
 from tgtools.formatting import discover_and_print, format_coin_calls
 from tgtools.parsing import parse_coin_call
-from tgtools.scraping import get_last_msg, get_recent_rickbot_messages
+from tgtools.scraping import get_last_msg, get_recent_rickbot_calls
 from tgtools.telethon import build_telethon_client
 
 
@@ -55,9 +55,9 @@ def cli(log_level, log_file):
 
 
 async def _recent_calls(tg_client, group_id, prev_time):
-    rickbot_messages = await get_recent_rickbot_messages(tg_client, group_id, prev_time)
+    rickbot_calls = await get_recent_rickbot_calls(tg_client, group_id, prev_time)
     coin_calls = [
-        c for c in [parse_coin_call(m) for m in rickbot_messages] if c is not None
+        c for c in [parse_coin_call(m) for m in rickbot_calls] if c is not None
     ]
 
     return coin_calls
