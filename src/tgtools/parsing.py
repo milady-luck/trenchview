@@ -42,6 +42,11 @@ def parse_fdv(fdv_line):
 # TODO: change print statements out with logging statements
 def parse_coin_call_resp(msg: str) -> ParsedCoinCallResp:
     logger = logging.getLogger("tgtools")
+
+    # TODO: when does this happen?
+    if msg is None:
+        return None
+
     lines = msg.splitlines()
 
     if len(lines) < 15:
@@ -53,10 +58,12 @@ def parse_coin_call_resp(msg: str) -> ParsedCoinCallResp:
 
     ex_chain_match = re.search(EX_CHAIN_RE, lines[1])
     if not ex_chain_match:
+        # FIXME
         # TODO: this can happen for pump.fun non-graduated coins!
         logger.warning(f"couldn't find chain/exchange str in {msg}")
-        return None
-    chain, exchange = ex_chain_match.group(1), ex_chain_match.group(2)
+        chain, exchange = "Unknown", "Unknown"
+    else:
+        chain, exchange = ex_chain_match.group(1), ex_chain_match.group(2)
 
     call_fdv = parse_fdv(lines[3])
     if not call_fdv:
