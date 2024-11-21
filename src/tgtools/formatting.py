@@ -1,3 +1,4 @@
+from collections import defaultdict
 from datetime import datetime
 from pprint import pprint
 
@@ -69,3 +70,24 @@ def print_telethon_obj(obj, depth=5):
             result[attr] = value
 
     pprint(result, width=80, sort_dicts=False)
+
+
+def group_by_ticker(
+    calls: list[CoinCall], multi_only=False
+) -> dict[str, list[CoinCall]]:
+    ticker_to_calls: dict[str, list[CoinCall]] = defaultdict(list)
+    for call in calls:
+        ticker_to_calls[call.ticker].append(call)
+
+    # sort calls for a given ticker by dt
+    ticker_to_calls = {
+        ticker: sorted(calls, key=lambda call: call.dt)
+        for ticker, calls in ticker_to_calls.items()
+    }
+
+    # filter if multicalled only
+    if multi_only:
+        ticker_to_calls = {
+            ticker: calls for ticker, calls in ticker_to_calls.items() if len(calls) > 1
+        }
+    return ticker_to_calls

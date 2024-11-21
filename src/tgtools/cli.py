@@ -2,7 +2,6 @@ import asyncio
 import json
 import logging
 import sys
-from collections import defaultdict
 from datetime import datetime, timedelta
 from logging.handlers import RotatingFileHandler
 from pathlib import Path
@@ -12,6 +11,7 @@ from tabulate import tabulate
 
 from tgtools.formatting import (
     coincall_to_row,
+    group_by_ticker,
     print_telethon_obj,
 )
 from tgtools.parsing import parse_coin_call
@@ -20,7 +20,6 @@ from tgtools.scraping import (
     get_recent_rickbot_calls,
 )
 from tgtools.telethon import build_telethon_client
-from tgtools.types import CoinCall
 
 
 def setup_logging(log_level, log_file=None):
@@ -73,19 +72,7 @@ async def _recent_calls(tg_client, group_id, prev_time):
     return coin_calls
 
 
-def group_by_ticker(calls: list[CoinCall]) -> dict[str, list[CoinCall]]:
-    ticker_to_calls: dict[str, list[CoinCall]] = defaultdict(list)
-    for call in calls:
-        ticker_to_calls[call.ticker].append(call)
-
-    # sort calls for a given ticker by dt
-    ticker_to_calls = {
-        ticker: sorted(calls, key=lambda call: call.dt)
-        for ticker, calls in ticker_to_calls.items()
-    }
-    return ticker_to_calls
-
-
+# NOTE: this may belong in 'formatting'
 @cli.command()
 @click.option("--days", "-d", type=int, default=0, help="Number of days (default: 0)")
 @click.option("--hours", "-h", type=int, default=0, help="Number of hours (default: 0)")
@@ -115,13 +102,7 @@ def recent_calls(days, hours, mins, group_id, out_file, multi_only):
     calls = loop.run_until_complete(_recent_calls(tg_client, group_id, prev_time))
     logger.info(f"{len(calls)} calls found")
 
-    ticker_to_calls = group_by_ticker(calls)
-
-    # filter if multicalled only
-    if multi_only:
-        ticker_to_calls = {
-            ticker: calls for ticker, calls in ticker_to_calls.items() if len(calls) > 1
-        }
+    ticker_to_calls = group_by_ticker(calls, multi_only)
 
     if out_file:
         f = Path(out_file)
