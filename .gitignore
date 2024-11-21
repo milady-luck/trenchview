@@ -7,3 +7,5 @@ test_data/
 .venv
 
 data/
+
+dist/
