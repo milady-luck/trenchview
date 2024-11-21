@@ -54,7 +54,7 @@ def setup_logging(log_level, log_file=None):
     type=click.Choice(
         ["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"], case_sensitive=False
     ),
-    default="INFO",
+    default="ERROR",
     help="Set the logging level",
 )
 @click.option("--log-file", type=click.Path(), help="Optional log file path")
