@@ -3,14 +3,14 @@ from datetime import datetime
 
 from telethon import TelegramClient
 
-from tgtools.types import UnparsedRickbotCall
+from trenchview.types import UnparsedRickbotCall
 
 # NOTE: assuming this is static for now
 RICK_ID = 6126376117
 
 
 async def get_last_msg(client: TelegramClient, group_id: int):
-    logger = logging.getLogger("tgtools")
+    logger = logging.getLogger("trenchview")
 
     async with client:
         logger.info(f"getting last message in {group_id}")
@@ -31,7 +31,7 @@ async def get_last_msg(client: TelegramClient, group_id: int):
 async def get_recent_rickbot_calls(
     client: TelegramClient, group_id: int, start_time: datetime
 ) -> list[UnparsedRickbotCall]:
-    logger = logging.getLogger("tgtools")
+    logger = logging.getLogger("trenchview")
 
     async with client:
         logger.info(

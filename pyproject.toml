@@ -1,7 +1,7 @@
 [tool.poetry]
-name = "tgtools"
+name = "trenchview"
 version = "0.1.0"
-description = "tg tools for making sense of hyperactive groupchats"
+description = "tools for looking at the trenches"
 authors = ["milady-luck <luck.l89@yahoo.com>"]
 license = "MIT"
 readme = "README.md"
@@ -18,7 +18,7 @@ requests = "^2.32.3"
 pytest = "^8.3.3"
 
 [tool.poetry.scripts]
-tgtools="tgtools.cli:cli"
+trenchview="trenchview.cli:cli"
 
 [build-system]
 requires = ["poetry-core"]
@@ -51,7 +51,7 @@ line-length = 88
 
 # Sort imports
 [tool.ruff.isort]
-known-first-party = ["tgtools"] # adjust this to your project name
+known-first-party = ["trenchview"] # adjust this to your project name
 
 # Additional configurations
 [tool.ruff.mccabe]

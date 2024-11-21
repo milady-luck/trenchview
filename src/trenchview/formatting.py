@@ -4,7 +4,7 @@ from pprint import pprint
 
 import pytz
 
-from tgtools.types import CoinCall
+from trenchview.types import CoinCall
 
 TABLE_ROW_HEADERS = ["caller", "ticker", "call-fdv ($)", "dt"]
 

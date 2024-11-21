@@ -2,7 +2,7 @@ import logging
 import re
 from typing import NamedTuple
 
-from tgtools.types import (
+from trenchview.types import (
     CoinCall,
     UnparsedRickbotCall,
 )
@@ -53,7 +53,7 @@ class ParsedCoinCallResp(NamedTuple):
 
 # TODO: change print statements out with logging statements
 def parse_coin_call_resp(msg: str) -> ParsedCoinCallResp:
-    logger = logging.getLogger("tgtools")
+    logger = logging.getLogger("trenchview")
 
     # TODO: when does this happen?
     if msg is None:
