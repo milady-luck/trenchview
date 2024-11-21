@@ -2,7 +2,7 @@ import asyncio
 import json
 import logging
 import sys
-from datetime import datetime, timedelta
+from datetime import UTC, datetime, timedelta
 from logging.handlers import RotatingFileHandler
 from pathlib import Path
 
@@ -94,7 +94,7 @@ def recent_calls(days, hours, mins, group_id, out_file, multi_only):
     else:
         td = timedelta(days=days, hours=hours, minutes=mins)
 
-    prev_time = datetime.now() - td
+    prev_time = datetime.now(UTC) - td
 
     tg_client = build_telethon_client("tgtools-recent-calls")
 
