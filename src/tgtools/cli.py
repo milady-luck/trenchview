@@ -83,7 +83,7 @@ async def _recent_calls(tg_client, group_id, prev_time):
 @click.option("--out-file", "-o", default=None)
 @click.option(
     "--multi-only",
-    "-m",
+    "-mo",
     is_flag=True,
     help="Filter to only those tickers called >1 time",
 )
