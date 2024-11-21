@@ -9,23 +9,23 @@ from pathlib import Path
 import click
 from tabulate import tabulate
 
-from tgtools.formatting import (
+from trenchview.formatting import (
     coincall_to_row,
     group_by_ticker,
     print_telethon_obj,
 )
-from tgtools.parsing import parse_coin_call
-from tgtools.scraping import (
+from trenchview.parsing import parse_coin_call
+from trenchview.scraping import (
     get_last_msg,
     get_recent_rickbot_calls,
 )
-from tgtools.telethon import build_telethon_client
+from trenchview.telethon import build_telethon_client
 
 
 def setup_logging(log_level, log_file=None):
     """Configure logging for both file and console output"""
     # Create logger with a namespace that matches your application
-    logger = logging.getLogger("tgtools")
+    logger = logging.getLogger("trenchview")
     logger.setLevel(log_level)
 
     # Prevent duplicate logs by checking if handlers already exist
@@ -88,7 +88,7 @@ async def _recent_calls(tg_client, group_id, prev_time):
     help="Filter to only those tickers called >1 time",
 )
 def recent_calls(days, hours, mins, group_id, out_file, multi_only):
-    logger = logging.getLogger("tgtools")
+    logger = logging.getLogger("trenchview")
     if days == 0 and hours == 0 and mins == 0:
         td = timedelta(hours=1)
     else:
@@ -96,7 +96,7 @@ def recent_calls(days, hours, mins, group_id, out_file, multi_only):
 
     prev_time = datetime.now(UTC) - td
 
-    tg_client = build_telethon_client("tgtools-recent-calls")
+    tg_client = build_telethon_client("trenchview-recent-calls")
 
     loop = asyncio.get_event_loop()
     calls = loop.run_until_complete(_recent_calls(tg_client, group_id, prev_time))
@@ -126,7 +126,7 @@ def recent_calls(days, hours, mins, group_id, out_file, multi_only):
 @click.option("--group-id", default=-1001639107971)  # default to the lab
 def last_msg(group_id):
     # NOTE: testing method just to see what latest message format is
-    tg_client = build_telethon_client("tgtools-last-msg")
+    tg_client = build_telethon_client("trenchview-last-msg")
 
     loop = asyncio.get_event_loop()
     message = loop.run_until_complete(get_last_msg(tg_client, group_id))

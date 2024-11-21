@@ -1,27 +1,24 @@
 import logging
 
-import pytest
-
-from tgtools.parsing import parse_coin_call_resp, find_ticker
-from tgtools.parsing import ParsedCoinCallResp
+from trenchview.parsing import ParsedCoinCallResp, find_ticker, parse_coin_call_resp
 
 logger = logging.getLogger(__name__)
+
 
 class TestFindTicker:
     def test_single_dollar(self):
         ticker_line = "foo bar $WIF"
         ticker = find_ticker(ticker_line)
-        assert ticker == 'WIF'
+        assert ticker == "WIF"
 
     def test_multi_dollar(self):
         for i in range(10):
-            prefix = '$' * i
+            prefix = "$" * i
             ticker = find_ticker(f"foo bar ${prefix}WIF")
-            assert ticker == prefix + 'WIF'
-        
+            assert ticker == prefix + "WIF"
+
 
 class TestRickRespParse:
-    
     def test_k_fdv(self):
         s = """🔥 I CHOOSE RICH EVERYTIME! [694.0K/53.3K%] $NICK
 🌐 Solana @ Raydium
@@ -66,9 +63,7 @@ TRO⋅STB⋅PHO⋅BLX⋅GMG⋅EXP⋅TW
 🏆 lasercat397 @ 1.3M⋅19x⋅1mo 👀 8.6K
 📈 TIP: Trade pump.fun on Photon"""
         parsed = parse_coin_call_resp(s)
-        expected = ParsedCoinCallResp(
-            "NAILONG", "Solana", "Raydium", 25_700_000.0
-        )
+        expected = ParsedCoinCallResp("NAILONG", "Solana", "Raydium", 25_700_000.0)
 
         assert parsed == expected
 
@@ -91,8 +86,6 @@ TRO⋅STB⋅PHO⋅BLX⋅EXP⋅RUG⋅TW
 🏆 rightcalibre @ 1.7B⋅2mo 👀 1950  # noqa: W29150
 📢 AD: Snipe, trade & win 10 $SOL - DEX3"""
         parsed = parse_coin_call_resp(s)
-        expected = ParsedCoinCallResp(
-            "$WIF", "Solana", "Orca", 1_700_000_000
-        )
+        expected = ParsedCoinCallResp("$WIF", "Solana", "Orca", 1_700_000_000)
 
         assert parsed == expected
