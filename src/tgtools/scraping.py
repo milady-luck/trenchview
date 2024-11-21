@@ -13,7 +13,7 @@ async def get_last_msg(client: TelegramClient, group_id: int):
     logger = logging.getLogger("tgtools")
 
     async with client:
-        logger.debug(f"getting last message in {group_id}")
+        logger.info(f"getting last message in {group_id}")
 
         group = await client.get_entity(group_id)
         messages = await client.get_messages(
@@ -34,7 +34,7 @@ async def get_recent_rickbot_calls(
     logger = logging.getLogger("tgtools")
 
     async with client:
-        logger.debug(
+        logger.info(
             f"getting recent rickbot messages from {group_id} since {start_time}"
         )
         group = await client.get_entity(group_id)
@@ -45,11 +45,11 @@ async def get_recent_rickbot_calls(
             max_id=0,
             min_id=0,
         )
-        logger.debug(f"got {len(messages)} total messages")
+        logger.info(f"got {len(messages)} total messages")
         id_to_msg = {msg.id: msg for msg in messages}
         rick_msgs = [msg for msg in messages if msg.from_id.user_id == RICK_ID]
 
-        logger.debug(f"got {len(rick_msgs)} rickbot messages")
+        logger.info(f"got {len(rick_msgs)} rickbot messages")
 
         # for all rickbot messages, get the parent message too and create a
         # UnparsedRickbotCall
@@ -62,6 +62,6 @@ async def get_recent_rickbot_calls(
 
                 ret.append(UnparsedRickbotCall(caller, msg.message, msg.date))
 
-        logger.debug("added caller for relevant messages")
+        logger.info("added caller for relevant messages")
 
         return ret

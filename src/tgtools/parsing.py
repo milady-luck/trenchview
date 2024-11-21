@@ -84,12 +84,6 @@ def parse_coin_call_resp(msg: str) -> ParsedCoinCallResp:
     return ParsedCoinCallResp(ticker, chain, exchange, call_fdv)
 
 
-def get_tg_url(group_id: int, msg_id: int):
-    # TODO: group id slightly different than what's returned by telethon
-    return "TODO"
-    # return f"t.me/c/{group_id}/{msg_id}"
-
-
 # NOTE: returns none if not a coin call
 def parse_coin_call(msg: UnparsedRickbotCall) -> CoinCall:
     parsed_resp = parse_coin_call_resp(msg.rickbot_message)
