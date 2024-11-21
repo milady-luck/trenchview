@@ -1,16 +1,26 @@
 import asyncio
+import json
 import logging
 import sys
+from collections import defaultdict
 from datetime import datetime, timedelta
 from logging.handlers import RotatingFileHandler
 from pathlib import Path
 
 import click
+from tabulate import tabulate
 
-from tgtools.formatting import discover_and_print, format_coin_calls
+from tgtools.formatting import (
+    coincall_to_row,
+    print_telethon_obj,
+)
 from tgtools.parsing import parse_coin_call
-from tgtools.scraping import get_last_msg, get_recent_rickbot_calls
+from tgtools.scraping import (
+    get_last_msg,
+    get_recent_rickbot_calls,
+)
 from tgtools.telethon import build_telethon_client
+from tgtools.types import CoinCall
 
 
 def setup_logging(log_level, log_file=None):
@@ -63,6 +73,19 @@ async def _recent_calls(tg_client, group_id, prev_time):
     return coin_calls
 
 
+def group_by_ticker(calls: list[CoinCall]) -> dict[str, list[CoinCall]]:
+    ticker_to_calls: dict[str, list[CoinCall]] = defaultdict(list)
+    for call in calls:
+        ticker_to_calls[call.ticker].append(call)
+
+    # sort calls for a given ticker by dt
+    ticker_to_calls = {
+        ticker: sorted(calls, key=lambda call: call.dt)
+        for ticker, calls in ticker_to_calls.items()
+    }
+    return ticker_to_calls
+
+
 @cli.command()
 @click.option("--days", "-d", type=int, default=0, help="Number of days (default: 0)")
 @click.option("--hours", "-h", type=int, default=0, help="Number of hours (default: 0)")
@@ -71,9 +94,14 @@ async def _recent_calls(tg_client, group_id, prev_time):
 )
 @click.option("--group-id", default=-1001639107971)  # default to the lab
 @click.option("--out-file", "-o", default=None)
-def recent_calls(days, hours, mins, group_id, out_file):
+@click.option(
+    "--multi-only",
+    "-m",
+    is_flag=True,
+    help="Filter to only those tickers called >1 time",
+)
+def recent_calls(days, hours, mins, group_id, out_file, multi_only):
     logger = logging.getLogger("tgtools")
-
     if days == 0 and hours == 0 and mins == 0:
         td = timedelta(hours=1)
     else:
@@ -87,13 +115,30 @@ def recent_calls(days, hours, mins, group_id, out_file):
     calls = loop.run_until_complete(_recent_calls(tg_client, group_id, prev_time))
     logger.info(f"{len(calls)} calls found")
 
+    ticker_to_calls = group_by_ticker(calls)
+
+    # filter if multicalled only
+    if multi_only:
+        ticker_to_calls = {
+            ticker: calls for ticker, calls in ticker_to_calls.items() if len(calls) > 1
+        }
+
     if out_file:
         f = Path(out_file)
         with f.open("w") as w:
-            w.write(format_coin_calls(calls))
+            json.dump(ticker_to_calls, w, indent=2)
 
     else:
-        print(format_coin_calls(calls))
+        # display tickers in reverse max fdv order
+        sorted_tickers = sorted(
+            ticker_to_calls.items(),
+            key=lambda kv: max([call.fdv for call in kv[1]]),
+            reverse=True,
+        )
+        for ticker, calls in sorted_tickers:
+            print(ticker)
+            print(tabulate([coincall_to_row(call) for call in calls]))
+            print()
 
 
 @cli.command()
@@ -105,7 +150,7 @@ def last_msg(group_id):
     loop = asyncio.get_event_loop()
     message = loop.run_until_complete(get_last_msg(tg_client, group_id))
 
-    discover_and_print(message)
+    print_telethon_obj(message)
 
 
 if __name__ == "__main__":

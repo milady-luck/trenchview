@@ -2,7 +2,6 @@ from datetime import datetime
 from pprint import pprint
 
 import pytz
-from tabulate import tabulate
 
 from tgtools.types import CoinCall
 
@@ -21,7 +20,7 @@ def format_dt(dt: datetime):
 
 # NOTE: change this and the method below in lock step! might be worth writing a test...
 def coincall_to_row(call: CoinCall) -> list[str]:
-    return [call.caller, call.ticker, f"{call.call_fdv:,.2f}", format_dt(call.dt)]
+    return [call.caller, call.ticker, f"{call.fdv:,.2f}", format_dt(call.dt)]
 
 
 def row_to_coincall(row: list[str]) -> CoinCall:
@@ -33,21 +32,7 @@ def row_to_coincall(row: list[str]) -> CoinCall:
     )
 
 
-def format_coin_calls(coin_calls: list[CoinCall]) -> str:
-    """Default tabulation method used in tgtools"""
-
-    fdv_sorted_calls = sorted(
-        coin_calls,
-        key=lambda x: x.call_fdv,
-        reverse=True,
-    )
-
-    table_rows = [coincall_to_row(call) for call in fdv_sorted_calls]
-
-    return tabulate(table_rows, headers=TABLE_ROW_HEADERS)
-
-
-def discover_and_print(obj, depth=5):
+def print_telethon_obj(obj, depth=5):
     """Print all non-magic attributes of an object and their values. Used for obj
     introspection"""
 
