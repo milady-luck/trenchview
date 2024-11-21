@@ -2,6 +2,8 @@
 
 Tools for viewing the trenches. 
 
+![](trenchview-demo.gif)
+
 ## install
 
 1. Install [pipx](https://github.com/pypa/pipx).
