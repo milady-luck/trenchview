@@ -29,7 +29,7 @@ def row_to_coincall(row: list[str]) -> CoinCall:
         row[0],
         row[1],
         float(row[2].replace(",", "")),
-        datetime.strptime(row[3], DT_FORMAT),
+        datetime.strptime(f"{row[3]} {row[4]}", DT_FORMAT),
     )
 
 
