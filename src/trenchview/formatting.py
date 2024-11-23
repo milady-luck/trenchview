@@ -3,6 +3,7 @@ from datetime import datetime
 from pprint import pprint
 
 import pytz
+from tabulate import tabulate
 
 from trenchview.types import CoinCall
 
@@ -91,3 +92,17 @@ def group_by_ticker(
             ticker: calls for ticker, calls in ticker_to_calls.items() if len(calls) > 1
         }
     return ticker_to_calls
+
+
+def format_ticker_calls(ticker_to_calls: dict[str, list[CoinCall]]) -> str:
+    sorted_tickers = sorted(
+        ticker_to_calls.items(),
+        key=lambda kv: max([call.fdv for call in kv[1]]),
+        reverse=True,
+    )
+    res = ""
+    for ticker, calls in sorted_tickers:
+        res += f"{ticker}\n"
+        res += f"{tabulate([coincall_to_row(call) for call in calls])}\n"
+        res += "\n"
+    return res

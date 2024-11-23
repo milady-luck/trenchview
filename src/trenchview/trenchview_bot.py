@@ -1,11 +1,15 @@
 import os
 import re
-from datetime import timedelta
+from datetime import UTC, datetime, timedelta
 
 from telegram import Update
 from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes
 
-BOT_TOKEN = os.getenv("TG_BOT_TOKEN")
+from trenchview.cmds import get_recent_tg_calls
+from trenchview.formatting import format_ticker_calls, group_by_ticker
+from trenchview.tg.telethon import build_telethon_client
+
+BOT_TOKEN = os.getenv("TRENCHVIEW_BOT_TOKEN")
 
 
 def parse_duration(dur_str) -> timedelta:
@@ -66,7 +70,16 @@ async def recent_calls_command(update: Update, context: ContextTypes.DEFAULT_TYP
                 "Use format: 30m, 2h, 1h30m, etc."
             )
 
-    await update.message.reply_text(f"⏳ Duration: {format_duration(duration)}")
+    group_id = -1001639107971  # TODO: make this an arg eventually?
+    tg_client = build_telethon_client("trenchview-bot-recent-calls")
+
+    prev_time = datetime.now(UTC) - duration
+    # logger on query starting
+    calls = await get_recent_tg_calls(tg_client, group_id, prev_time)
+    # logger on results found
+
+    ticker_to_calls = group_by_ticker(calls)
+    await update.message.reply_text(format_ticker_calls(ticker_to_calls))
 
 
 def main():

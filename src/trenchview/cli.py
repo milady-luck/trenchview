@@ -7,17 +7,15 @@ from logging.handlers import RotatingFileHandler
 from pathlib import Path
 
 import click
-from tabulate import tabulate
 
+from trenchview.cmds import get_recent_tg_calls
 from trenchview.formatting import (
-    coincall_to_row,
+    format_ticker_calls,
     group_by_ticker,
     print_telethon_obj,
 )
-from trenchview.parsing import parse_coin_call
 from trenchview.tg.scraping import (
     get_last_msg,
-    get_recent_rickbot_calls,
 )
 from trenchview.tg.telethon import build_telethon_client
 
@@ -63,15 +61,6 @@ def cli(log_level, log_file):
     setup_logging(log_level, log_file)
 
 
-async def _recent_calls(tg_client, group_id, prev_time):
-    rickbot_calls = await get_recent_rickbot_calls(tg_client, group_id, prev_time)
-    coin_calls = [
-        c for c in [parse_coin_call(m) for m in rickbot_calls] if c is not None
-    ]
-
-    return coin_calls
-
-
 # NOTE: this may belong in 'formatting'
 @cli.command()
 @click.option("--days", "-d", type=int, default=0, help="Number of days (default: 0)")
@@ -99,7 +88,7 @@ def recent_calls(days, hours, mins, group_id, out_file, multi_only):
     tg_client = build_telethon_client("trenchview-recent-calls")
 
     loop = asyncio.get_event_loop()
-    calls = loop.run_until_complete(_recent_calls(tg_client, group_id, prev_time))
+    calls = loop.run_until_complete(get_recent_tg_calls(tg_client, group_id, prev_time))
     logger.info(f"{len(calls)} calls found")
 
     ticker_to_calls = group_by_ticker(calls, multi_only)
@@ -110,16 +99,7 @@ def recent_calls(days, hours, mins, group_id, out_file, multi_only):
             json.dump(ticker_to_calls, w, indent=2)
 
     else:
-        # display tickers in reverse max fdv order
-        sorted_tickers = sorted(
-            ticker_to_calls.items(),
-            key=lambda kv: max([call.fdv for call in kv[1]]),
-            reverse=True,
-        )
-        for ticker, calls in sorted_tickers:
-            print(ticker)
-            print(tabulate([coincall_to_row(call) for call in calls]))
-            print()
+        print(format_ticker_calls(ticker_to_calls))
 
 
 @cli.command()
