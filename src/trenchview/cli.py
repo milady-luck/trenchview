@@ -15,11 +15,11 @@ from trenchview.formatting import (
     print_telethon_obj,
 )
 from trenchview.parsing import parse_coin_call
-from trenchview.scraping import (
+from trenchview.tg.scraping import (
     get_last_msg,
     get_recent_rickbot_calls,
 )
-from trenchview.telethon import build_telethon_client
+from trenchview.tg.telethon import build_telethon_client
 
 
 def setup_logging(log_level, log_file=None):
