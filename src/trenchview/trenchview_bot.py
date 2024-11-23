@@ -1,3 +1,4 @@
+import logging
 import os
 import re
 from datetime import UTC, datetime, timedelta
@@ -7,6 +8,7 @@ from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes
 
 from trenchview.cmds import get_recent_tg_calls
 from trenchview.formatting import format_ticker_calls, group_by_ticker
+from trenchview.logging import setup_logging
 from trenchview.tg.telethon import build_telethon_client
 
 BOT_TOKEN = os.getenv("TRENCHVIEW_BOT_TOKEN")
@@ -60,6 +62,10 @@ def format_duration(td: timedelta) -> str:
 
 
 async def recent_calls_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    setup_logging(logging.INFO)
+
+    logger = logging.getLogger("trenchview.bot")
+
     # TODO: log caller, args
     duration = DEFAULT_DURATION 
     if context.args:
@@ -72,18 +78,22 @@ async def recent_calls_command(update: Update, context: ContextTypes.DEFAULT_TYP
                 "Use format: 30m, 2h, 1d, 1d2h30m, etc."
             )
 
-    # TODO: send message saying bot is working...
+    await update.message.reply_text("working...")
 
     group_id = -1001639107971  # TODO: make this an arg eventually?
     tg_client = build_telethon_client("trenchview-bot-recent-calls")
 
     prev_time = datetime.now(UTC) - duration
-    # logger on query starting
+    logger.info(
+            f"getting recent calls since {prev_time}"
+        )
     calls = await get_recent_tg_calls(tg_client, group_id, prev_time)
-    # logger on results found
+    logger.info(f"found {len(calls)} calls")
 
     ticker_to_calls = group_by_ticker(calls)
     await update.message.reply_text(format_ticker_calls(ticker_to_calls))
+
+    # TODO: error handling? send a message saying shit failed if exception raised
 
 
 def main():

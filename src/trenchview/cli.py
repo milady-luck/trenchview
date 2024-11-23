@@ -1,9 +1,7 @@
 import asyncio
 import json
 import logging
-import sys
 from datetime import UTC, datetime, timedelta
-from logging.handlers import RotatingFileHandler
 from pathlib import Path
 
 import click
@@ -14,36 +12,11 @@ from trenchview.formatting import (
     group_by_ticker,
     print_telethon_obj,
 )
+from trenchview.logging import setup_logging
 from trenchview.tg.scraping import (
     get_last_msg,
 )
 from trenchview.tg.telethon import build_telethon_client
-
-
-def setup_logging(log_level, log_file=None):
-    """Configure logging for both file and console output"""
-    # Create logger with a namespace that matches your application
-    logger = logging.getLogger("trenchview")
-    logger.setLevel(log_level)
-
-    # Prevent duplicate logs by checking if handlers already exist
-    if not logger.handlers:
-        formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
-
-        # Console handler
-        console_handler = logging.StreamHandler(sys.stdout)
-        console_handler.setFormatter(formatter)
-        logger.addHandler(console_handler)
-
-        # File handler (optional)
-        if log_file:
-            file_handler = RotatingFileHandler(
-                log_file, maxBytes=1024 * 1024, backupCount=3
-            )
-            file_handler.setFormatter(formatter)
-            logger.addHandler(file_handler)
-
-    return logger
 
 
 @click.group()
@@ -77,7 +50,7 @@ def cli(log_level, log_file):
     help="Filter to only those tickers called >1 time",
 )
 def recent_calls(days, hours, mins, group_id, out_file, multi_only):
-    logger = logging.getLogger("trenchview")
+    logger = logging.getLogger("trenchview.cli")
     if days == 0 and hours == 0 and mins == 0:
         td = timedelta(hours=1)
     else:
