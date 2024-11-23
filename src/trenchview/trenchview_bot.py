@@ -11,11 +11,12 @@ from trenchview.tg.telethon import build_telethon_client
 
 BOT_TOKEN = os.getenv("TRENCHVIEW_BOT_TOKEN")
 
+DEFAULT_DURATION = timedelta(hours=1)
 
 def parse_duration(dur_str) -> timedelta:
     # TODO: test
     if not dur_str:
-        return timedelta(hours=1)
+        return DEFAULT_DURATION 
 
     # Clean up input
     text = dur_str.lower().strip()
@@ -25,14 +26,16 @@ def parse_duration(dur_str) -> timedelta:
         return timedelta(hours=int(text))
 
     total_seconds = 0
-    parts = re.findall(r"(\d+[hm])", text)
+    parts = re.findall(r"(\d+[dhm])", text)
 
     if not parts:
-        return timedelta(hours=1)
+        DEFAULT_DURATION
 
     for part in parts:
         number = int(part[:-1])
         unit = part[-1]
+        if unit == "d":
+            total_seconds += number * 86400  # days to seconds
         if unit == "h":
             total_seconds += number * 3600
         elif unit == "m":
@@ -57,9 +60,8 @@ def format_duration(td: timedelta) -> str:
 
 
 async def recent_calls_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    # NOTE: may want to log slightly cleverly here
-
-    duration = timedelta(hours=1)  # default 1h
+    # TODO: log caller, args
+    duration = DEFAULT_DURATION 
     if context.args:
         try:
             duration = parse_duration(context.args[0])
@@ -67,8 +69,10 @@ async def recent_calls_command(update: Update, context: ContextTypes.DEFAULT_TYP
         except ValueError:
             await update.message.reply_text(
                 "Couldn't understand duration, using default 1 hour.\n"
-                "Use format: 30m, 2h, 1h30m, etc."
+                "Use format: 30m, 2h, 1d, 1d2h30m, etc."
             )
+
+    # TODO: send message saying bot is working...
 
     group_id = -1001639107971  # TODO: make this an arg eventually?
     tg_client = build_telethon_client("trenchview-bot-recent-calls")
