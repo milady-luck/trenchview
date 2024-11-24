@@ -81,19 +81,24 @@ async def recent_calls_command(update: Update, context: ContextTypes.DEFAULT_TYP
             )
 
     await update.message.reply_text(
-        f"working on your request for calls in the last {humanize.precisedelta(duration, minimum_unit="seconds")}"
+        f"working on your request for calls in the last {humanize.precisedelta(duration, minimum_unit="seconds")}"  # noqa: E501
     )
 
     group_id = -1001639107971  # TODO: make this an arg eventually?
-    tg_client = build_telethon_client("trenchview-bot-recent-calls")
+
+    # TODO: initialize client with session string
+    tg_client = build_telethon_client("trenchview-bot")
 
     prev_time = datetime.now(DEFAULT_TZ) - duration
-    calls = await get_recent_tg_calls(tg_client, group_id, prev_time)
 
-    ticker_to_calls = group_by_ticker(calls)
-    await update.message.reply_text(format_ticker_calls(ticker_to_calls))
+    try:
+        calls = await get_recent_tg_calls(tg_client, group_id, prev_time)
 
-    # TODO: error handling? send a message saying shit failed if exception raised
+        ticker_to_calls = group_by_ticker(calls)
+        await update.message.reply_text(format_ticker_calls(ticker_to_calls))
+    except Exception as e:
+        logger.error(f"error: {e}")
+        await update.message.reply_text("unknown error! dm @paperun on tg for details")
 
 
 def main():
