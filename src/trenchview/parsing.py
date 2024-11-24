@@ -2,7 +2,7 @@ import logging
 import re
 from typing import NamedTuple
 
-from trenchview.types import (
+from trenchview.custom_types import (
     CoinCall,
     UnparsedRickbotCall,
 )

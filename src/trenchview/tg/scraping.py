@@ -3,7 +3,7 @@ from datetime import datetime
 
 from telethon import TelegramClient
 
-from trenchview.types import UnparsedRickbotCall
+from trenchview.custom_types import UnparsedRickbotCall
 
 # NOTE: assuming this is static for now
 RICK_ID = 6126376117

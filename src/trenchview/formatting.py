@@ -5,7 +5,7 @@ from pprint import pprint
 import pytz
 from tabulate import tabulate
 
-from trenchview.types import CoinCall
+from trenchview.custom_types import CoinCall
 
 TABLE_ROW_HEADERS = ["caller", "ticker", "call-fdv ($)", "dt"]
 
