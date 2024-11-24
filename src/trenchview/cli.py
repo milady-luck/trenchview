@@ -1,51 +1,22 @@
 import asyncio
 import json
 import logging
-import sys
 from datetime import UTC, datetime, timedelta
-from logging.handlers import RotatingFileHandler
 from pathlib import Path
 
 import click
-from tabulate import tabulate
 
+from trenchview.cmds import get_recent_tg_calls
 from trenchview.formatting import (
-    coincall_to_row,
+    format_ticker_calls,
     group_by_ticker,
     print_telethon_obj,
 )
-from trenchview.parsing import parse_coin_call
-from trenchview.scraping import (
+from trenchview.logging import setup_logging
+from trenchview.tg.scraping import (
     get_last_msg,
-    get_recent_rickbot_calls,
 )
-from trenchview.telethon import build_telethon_client
-
-
-def setup_logging(log_level, log_file=None):
-    """Configure logging for both file and console output"""
-    # Create logger with a namespace that matches your application
-    logger = logging.getLogger("trenchview")
-    logger.setLevel(log_level)
-
-    # Prevent duplicate logs by checking if handlers already exist
-    if not logger.handlers:
-        formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
-
-        # Console handler
-        console_handler = logging.StreamHandler(sys.stdout)
-        console_handler.setFormatter(formatter)
-        logger.addHandler(console_handler)
-
-        # File handler (optional)
-        if log_file:
-            file_handler = RotatingFileHandler(
-                log_file, maxBytes=1024 * 1024, backupCount=3
-            )
-            file_handler.setFormatter(formatter)
-            logger.addHandler(file_handler)
-
-    return logger
+from trenchview.tg.telethon import build_telethon_client
 
 
 @click.group()
@@ -61,15 +32,6 @@ def setup_logging(log_level, log_file=None):
 def cli(log_level, log_file):
     """Async CLI tool."""
     setup_logging(log_level, log_file)
-
-
-async def _recent_calls(tg_client, group_id, prev_time):
-    rickbot_calls = await get_recent_rickbot_calls(tg_client, group_id, prev_time)
-    coin_calls = [
-        c for c in [parse_coin_call(m) for m in rickbot_calls] if c is not None
-    ]
-
-    return coin_calls
 
 
 # NOTE: this may belong in 'formatting'
@@ -88,7 +50,7 @@ async def _recent_calls(tg_client, group_id, prev_time):
     help="Filter to only those tickers called >1 time",
 )
 def recent_calls(days, hours, mins, group_id, out_file, multi_only):
-    logger = logging.getLogger("trenchview")
+    logger = logging.getLogger("trenchview.cli")
     if days == 0 and hours == 0 and mins == 0:
         td = timedelta(hours=1)
     else:
@@ -99,7 +61,7 @@ def recent_calls(days, hours, mins, group_id, out_file, multi_only):
     tg_client = build_telethon_client("trenchview-recent-calls")
 
     loop = asyncio.get_event_loop()
-    calls = loop.run_until_complete(_recent_calls(tg_client, group_id, prev_time))
+    calls = loop.run_until_complete(get_recent_tg_calls(tg_client, group_id, prev_time))
     logger.info(f"{len(calls)} calls found")
 
     ticker_to_calls = group_by_ticker(calls, multi_only)
@@ -110,16 +72,7 @@ def recent_calls(days, hours, mins, group_id, out_file, multi_only):
             json.dump(ticker_to_calls, w, indent=2)
 
     else:
-        # display tickers in reverse max fdv order
-        sorted_tickers = sorted(
-            ticker_to_calls.items(),
-            key=lambda kv: max([call.fdv for call in kv[1]]),
-            reverse=True,
-        )
-        for ticker, calls in sorted_tickers:
-            print(ticker)
-            print(tabulate([coincall_to_row(call) for call in calls]))
-            print()
+        print(format_ticker_calls(ticker_to_calls))
 
 
 @cli.command()

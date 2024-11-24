@@ -1,8 +1,4 @@
-import logging
-
 from trenchview.parsing import ParsedCoinCallResp, find_ticker, parse_coin_call_resp
-
-logger = logging.getLogger(__name__)
 
 
 class TestFindTicker:
