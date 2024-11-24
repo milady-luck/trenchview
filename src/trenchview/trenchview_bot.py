@@ -1,22 +1,24 @@
 import logging
 import os
 import re
-from datetime import UTC, datetime, timedelta
+import humanize
+from datetime import datetime, timedelta
+from zoneinfo  import ZoneInfo
 
 from telegram import Update
 from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes
 
 from trenchview.cmds import get_recent_tg_calls
 from trenchview.formatting import format_ticker_calls, group_by_ticker
-from trenchview.logging import setup_logging
+from trenchview.logger import setup_logging
 from trenchview.tg.telethon import build_telethon_client
 
 BOT_TOKEN = os.getenv("TRENCHVIEW_BOT_TOKEN")
 
 DEFAULT_DURATION = timedelta(hours=1)
+DEFAULT_TZ = ZoneInfo("America/Los_Angeles")
 
 def parse_duration(dur_str) -> timedelta:
-    # TODO: test
     if not dur_str:
         return DEFAULT_DURATION 
 
@@ -62,12 +64,11 @@ def format_duration(td: timedelta) -> str:
 
 
 async def recent_calls_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    setup_logging(logging.INFO)
-
     logger = logging.getLogger("trenchview.bot")
-
-    # TODO: log caller, args
+    
     duration = DEFAULT_DURATION 
+    user = update.effective_user
+    logger.info(f"recent-calls({context.args}) - {user.username}")
     if context.args:
         try:
             duration = parse_duration(context.args[0])
@@ -78,17 +79,13 @@ async def recent_calls_command(update: Update, context: ContextTypes.DEFAULT_TYP
                 "Use format: 30m, 2h, 1d, 1d2h30m, etc."
             )
 
-    await update.message.reply_text("working...")
+    await update.message.reply_text(f"working on your request for calls in the last {humanize.precisedelta(duration, minimum_unit="seconds")}")
 
     group_id = -1001639107971  # TODO: make this an arg eventually?
     tg_client = build_telethon_client("trenchview-bot-recent-calls")
 
-    prev_time = datetime.now(UTC) - duration
-    logger.info(
-            f"getting recent calls since {prev_time}"
-        )
+    prev_time = datetime.now(DEFAULT_TZ) - duration
     calls = await get_recent_tg_calls(tg_client, group_id, prev_time)
-    logger.info(f"found {len(calls)} calls")
 
     ticker_to_calls = group_by_ticker(calls)
     await update.message.reply_text(format_ticker_calls(ticker_to_calls))
@@ -97,6 +94,8 @@ async def recent_calls_command(update: Update, context: ContextTypes.DEFAULT_TYP
 
 
 def main():
+    setup_logging(logging.INFO)
+
     # Create application
     app = ApplicationBuilder().token(BOT_TOKEN).build()
 

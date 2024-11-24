@@ -42,3 +42,6 @@ class TestParseDuration:
 
         s3 = "2h1m"
         assert parse_duration(s3) == timedelta(hours=2, minutes=1)
+
+        s4 = "1h32m"
+        assert parse_duration(s4) == timedelta(hours=1, minutes=32)

@@ -228,6 +228,20 @@ socks = ["socksio (==1.*)"]
 zstd = ["zstandard (>=0.18.0)"]
 
 [[package]]
+name = "humanize"
+version = "4.11.0"
+description = "Python humanize utilities"
+optional = false
+python-versions = ">=3.9"
+files = [
+    {file = "humanize-4.11.0-py3-none-any.whl", hash = "sha256:b53caaec8532bcb2fff70c8826f904c35943f8cecaca29d272d9df38092736c0"},
+    {file = "humanize-4.11.0.tar.gz", hash = "sha256:e66f36020a2d5a974c504bd2555cf770621dbdbb6d82f94a6857c0b1ea2608be"},
+]
+
+[package.extras]
+tests = ["freezegun", "pytest", "pytest-cov"]
+
+[[package]]
 name = "idna"
 version = "3.10"
 description = "Internationalized Domain Names in Applications (IDNA)"
@@ -417,12 +431,13 @@ widechars = ["wcwidth"]
 
 [[package]]
 name = "telethon"
-version = "1.37.0"
+version = "1.38.1"
 description = "Full-featured Telegram client library for Python 3"
 optional = false
 python-versions = ">=3.5"
 files = [
-    {file = "Telethon-1.37.0.tar.gz", hash = "sha256:e5e43cff1c1b34e2f9c2b395215beb6e9bda706b69def7efff4f55b23c9c4374"},
+    {file = "Telethon-1.38.1-py3-none-any.whl", hash = "sha256:30c187017501bfb982b8af5659f864dda4108f77ea49cfce61e8f6fdb8a18d6e"},
+    {file = "Telethon-1.38.1.tar.gz", hash = "sha256:f9866c1e37197a0894e0c02aa56a6359bffb14a585e88e18e3e819df4fda399a"},
 ]
 
 [package.dependencies]
@@ -452,4 +467,4 @@ zstd = ["zstandard (>=0.18.0)"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.13"
-content-hash = "4516338e8a9f66300ec8021e5b039439f1b2001d13c8bd3cc7b0dcc56afa791f"
+content-hash = "b30bcd0f4bf8e573314321eedd915ad8aa6aef315ba68c93decae67aa5abc1c9"
