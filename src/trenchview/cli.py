@@ -12,7 +12,7 @@ from trenchview.formatting import (
     group_by_ticker,
     print_telethon_obj,
 )
-from trenchview.logging import setup_logging
+from trenchview.logger import setup_logging
 from trenchview.tg.scraping import (
     get_last_msg,
 )
