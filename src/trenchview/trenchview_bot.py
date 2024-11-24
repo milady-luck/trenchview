@@ -81,12 +81,11 @@ async def recent_calls_command(update: Update, context: ContextTypes.DEFAULT_TYP
             )
 
     await update.message.reply_text(
-        f"working on your request for calls in the last {humanize.precisedelta(duration, minimum_unit="seconds")}"  # noqa: E501
+        f"working on your request for calls in the last {humanize.precisedelta(duration, minimum_unit='seconds')}"  # noqa: E501
     )
 
     group_id = -1001639107971  # TODO: make this an arg eventually?
 
-    # TODO: initialize client with session string
     tg_client = build_telethon_client("trenchview-bot")
 
     prev_time = datetime.now(DEFAULT_TZ) - duration
