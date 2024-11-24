@@ -34,7 +34,7 @@ def parse_duration(dur_str) -> timedelta:
     parts = re.findall(r"(\d+[dhm])", text)
 
     if not parts:
-        DEFAULT_DURATION
+        return DEFAULT_DURATION
 
     for part in parts:
         number = int(part[:-1])
