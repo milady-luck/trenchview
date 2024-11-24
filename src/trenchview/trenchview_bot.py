@@ -102,6 +102,7 @@ async def recent_calls_command(update: Update, context: ContextTypes.DEFAULT_TYP
 
 def main():
     setup_logging(logging.INFO)
+    logger = logging.getLogger("trenchview.bot")
 
     # Create application
     app = ApplicationBuilder().token(BOT_TOKEN).build()
@@ -109,7 +110,7 @@ def main():
     app.add_handler(CommandHandler("recent_calls", recent_calls_command))
 
     # Start the bot
-    print("Bot is running...")
+    logger.info("trenchview-bot is running...")
     app.run_polling(poll_interval=1)
 
 
