@@ -1,10 +1,10 @@
 import logging
 import os
 import re
-import humanize
 from datetime import datetime, timedelta
-from zoneinfo  import ZoneInfo
+from zoneinfo import ZoneInfo
 
+import humanize
 from telegram import Update
 from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes
 
@@ -18,9 +18,10 @@ BOT_TOKEN = os.getenv("TRENCHVIEW_BOT_TOKEN")
 DEFAULT_DURATION = timedelta(hours=1)
 DEFAULT_TZ = ZoneInfo("America/Los_Angeles")
 
+
 def parse_duration(dur_str) -> timedelta:
     if not dur_str:
-        return DEFAULT_DURATION 
+        return DEFAULT_DURATION
 
     # Clean up input
     text = dur_str.lower().strip()
@@ -65,8 +66,8 @@ def format_duration(td: timedelta) -> str:
 
 async def recent_calls_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     logger = logging.getLogger("trenchview.bot")
-    
-    duration = DEFAULT_DURATION 
+
+    duration = DEFAULT_DURATION
     user = update.effective_user
     logger.info(f"recent-calls({context.args}) - {user.username}")
     if context.args:
@@ -79,7 +80,9 @@ async def recent_calls_command(update: Update, context: ContextTypes.DEFAULT_TYP
                 "Use format: 30m, 2h, 1d, 1d2h30m, etc."
             )
 
-    await update.message.reply_text(f"working on your request for calls in the last {humanize.precisedelta(duration, minimum_unit="seconds")}")
+    await update.message.reply_text(
+        f"working on your request for calls in the last {humanize.precisedelta(duration, minimum_unit="seconds")}"
+    )
 
     group_id = -1001639107971  # TODO: make this an arg eventually?
     tg_client = build_telethon_client("trenchview-bot-recent-calls")

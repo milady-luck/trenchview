@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: trenchview-bot 
+    env: python
+    buildCommand: pip install poetry && poetry install
+    # For python-telegram-bot, we want to use polling instead of webhooks
+    startCommand: poetry run python src/trenchview/trenchview_bot.py
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.0
+      - key: TELEGRAM_BOT_TOKEN
+        sync: false  
+      - key: TG_API_ID
+        sync: false
+      - key: TG_API_HASH
+        sync: false
