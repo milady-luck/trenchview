@@ -103,3 +103,44 @@ def format_calls(ticker_chain_to_calls: dict[(str, str), list[CoinCall]]) -> str
         res += f"{tabulate([coincall_to_row(call) for call in calls])}\n"
         res += "\n"
     return res
+
+
+def group_into_parts(raw_msg: str, max_len: int) -> list[str]:
+    """groups a message into maxlen-length parts, honoring newlines"""
+    parts = raw_msg.split("\n\n")
+    if len(parts) == 0:
+        return []
+
+    current_part = parts[0]
+    ret = []
+    for part in parts[1:]:
+        if len(current_part) + len(part) + 2 <= max_len:
+            if len(current_part) > 0:
+                current_part += "\n\n" + part
+            else:
+                current_part = part
+
+        elif len(current_part) > max_len:
+            ret.extend(
+                [
+                    current_part[i : i + max_len]
+                    for i in range(0, len(current_part), max_len)
+                ]
+            )
+
+        else:
+            ret.append(current_part)
+            current_part = part
+
+    if len(current_part) > max_len:
+        ret.extend(
+            [
+                current_part[i : i + max_len]
+                for i in range(0, len(current_part), max_len)
+            ]
+        )
+
+    else:
+        ret.append(current_part)
+
+    return ret

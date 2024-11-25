@@ -10,7 +10,7 @@ from telegram.error import Conflict
 from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes
 
 from trenchview.cmds import get_recent_tg_calls
-from trenchview.formatting import format_calls, group_by_ticker_chain
+from trenchview.formatting import format_calls, group_by_ticker_chain, group_into_parts
 from trenchview.logger import setup_logging
 from trenchview.tg.telethon import build_telethon_client
 
@@ -18,6 +18,9 @@ BOT_TOKEN = os.getenv("TRENCHVIEW_BOT_TOKEN")
 
 DEFAULT_DURATION = timedelta(hours=1)
 DEFAULT_TZ = ZoneInfo("America/Los_Angeles")
+
+# tg max response length
+MAX_RESP_LEN = 4095
 
 
 def parse_duration(dur_str) -> timedelta:
@@ -95,7 +98,17 @@ async def recent_calls_command(update: Update, context: ContextTypes.DEFAULT_TYP
         calls = await get_recent_tg_calls(tg_client, group_id, prev_time)
 
         ticker_chain_to_calls = group_by_ticker_chain(calls)
-        await update.message.reply_text(format_calls(ticker_chain_to_calls))
+
+        raw_msg = format_calls(ticker_chain_to_calls)
+        logger.info(f"raw msg len: {len(raw_msg)}")
+        if len(raw_msg) <= MAX_RESP_LEN:
+            await update.message.reply_text(raw_msg)
+
+        else:
+            parts = group_into_parts(raw_msg, MAX_RESP_LEN)
+            for part in parts:
+                await update.message.reply_text(part)
+
     except Exception as e:
         logger.error(f"error: {e}")
         await update.message.reply_text("unknown error! dm @paperun on tg for details")
