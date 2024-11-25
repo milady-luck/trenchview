@@ -35,7 +35,7 @@ CAL | MNZ | MAG | ORC | FLX | SRM
 🏆 [redacted] @ 15.6K 👀 211
 ⚔️ TIP: Farm Cambria Duel Arena"""
         parsed = parse_coin_call_resp(s)
-        expected = ParsedCoinCallResp("NICK", "Solana", "Raydium", 694_000.0)
+        expected = ParsedCoinCallResp("NICK", "Solana", 694_000.0)
 
         assert parsed == expected
 
@@ -59,7 +59,7 @@ TRO⋅STB⋅PHO⋅BLX⋅GMG⋅EXP⋅TW
 🏆 lasercat397 @ 1.3M⋅19x⋅1mo 👀 8.6K
 📈 TIP: Trade pump.fun on Photon"""
         parsed = parse_coin_call_resp(s)
-        expected = ParsedCoinCallResp("NAILONG", "Solana", "Raydium", 25_700_000.0)
+        expected = ParsedCoinCallResp("NAILONG", "Solana", 25_700_000.0)
 
         assert parsed == expected
 
@@ -82,6 +82,6 @@ TRO⋅STB⋅PHO⋅BLX⋅EXP⋅RUG⋅TW
 🏆 rightcalibre @ 1.7B⋅2mo 👀 1950  # noqa: W29150
 📢 AD: Snipe, trade & win 10 $SOL - DEX3"""
         parsed = parse_coin_call_resp(s)
-        expected = ParsedCoinCallResp("$WIF", "Solana", "Orca", 1_700_000_000)
+        expected = ParsedCoinCallResp("$WIF", "Solana", 1_700_000_000)
 
         assert parsed == expected
