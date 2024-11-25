@@ -8,8 +8,8 @@ import click
 
 from trenchview.cmds import get_recent_tg_calls
 from trenchview.formatting import (
-    format_ticker_calls,
-    group_by_ticker,
+    format_calls,
+    group_by_ticker_chain,
     print_telethon_obj,
 )
 from trenchview.logger import setup_logging
@@ -34,7 +34,6 @@ def cli(log_level, log_file):
     setup_logging(log_level, log_file)
 
 
-# NOTE: this may belong in 'formatting'
 @cli.command()
 @click.option("--days", "-d", type=int, default=0, help="Number of days (default: 0)")
 @click.option("--hours", "-h", type=int, default=0, help="Number of hours (default: 0)")
@@ -64,15 +63,15 @@ def recent_calls(days, hours, mins, group_id, out_file, multi_only):
     calls = loop.run_until_complete(get_recent_tg_calls(tg_client, group_id, prev_time))
     logger.info(f"{len(calls)} calls found")
 
-    ticker_to_calls = group_by_ticker(calls, multi_only)
+    ticker_chain_to_calls = group_by_ticker_chain(calls, multi_only)
 
     if out_file:
         f = Path(out_file)
         with f.open("w") as w:
-            json.dump(ticker_to_calls, w, indent=2)
+            json.dump(ticker_chain_to_calls, w, indent=2)
 
     else:
-        print(format_ticker_calls(ticker_to_calls))
+        print(format_calls(ticker_chain_to_calls))
 
 
 @cli.command()
