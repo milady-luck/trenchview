@@ -108,7 +108,7 @@ def error_handler(logger):
         if isinstance(context.error, Conflict):
             logger.error("Multiple bot instances detected!")
 
-    return _error_handler(logger)
+    return _error_handler
 
 
 def main():
