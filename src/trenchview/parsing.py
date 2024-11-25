@@ -46,12 +46,10 @@ def parse_fdv(fdv_line):
 class ParsedCoinCallResp(NamedTuple):
     ticker: str
     chain: str
-    exchange: str
 
     call_fdv: float
 
 
-# TODO: change print statements out with logging statements
 def parse_coin_call_resp(msg: str) -> ParsedCoinCallResp:
     logger = logging.getLogger("trenchview")
 
@@ -72,16 +70,16 @@ def parse_coin_call_resp(msg: str) -> ParsedCoinCallResp:
     if not ex_chain_match:
         # TODO: this can happen for pump.fun non-graduated coins!
         logger.warning(f"couldn't find chain/exchange str in {msg}")
-        chain, exchange = "Unknown", "Unknown"
+        chain = "Unknown"
     else:
-        chain, exchange = ex_chain_match.group(1), ex_chain_match.group(2)
+        chain = ex_chain_match.group(1)
 
     call_fdv = parse_fdv(lines[3])
     if not call_fdv:
         logger.warning(f"couldn't find call fdv in {msg}")
         return None
 
-    return ParsedCoinCallResp(ticker, chain, exchange, call_fdv)
+    return ParsedCoinCallResp(ticker, chain, call_fdv)
 
 
 # NOTE: returns none if not a coin call
@@ -90,14 +88,10 @@ def parse_coin_call(msg: UnparsedRickbotCall) -> CoinCall:
     if not parsed_resp:
         return None
 
-    # TODO: where should this be specified?
-    # temp_group_id = -1001639107971
-    # tg_url = get_tg_url(temp_group_id, msg.resp_msg.msg_id)
-
-    # TODO: timestamp
     return CoinCall(
-        msg.caller,
-        parsed_resp.ticker,
-        parsed_resp.call_fdv,
-        msg.dt,
+        caller=msg.caller,
+        ticker=parsed_resp.ticker,
+        chain=parsed_resp.chain,
+        fdv=parsed_resp.call_fdv,
+        dt=msg.dt,
     )

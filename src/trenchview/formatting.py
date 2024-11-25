@@ -20,18 +20,12 @@ def format_dt(dt: datetime):
     return local_dt.strftime(DT_FORMAT)
 
 
-# NOTE: change this and the method below in lock step! might be worth writing a test...
 def coincall_to_row(call: CoinCall) -> list[str]:
-    return [call.caller, call.ticker, f"{call.fdv:,.2f}", format_dt(call.dt)]
-
-
-def row_to_coincall(row: list[str]) -> CoinCall:
-    return CoinCall(
-        row[0],
-        row[1],
-        float(row[2].replace(",", "")),
-        datetime.strptime(f"{row[3]} {row[4]}", DT_FORMAT),
-    )
+    return [
+        call.caller,
+        f"{call.fdv:,.2f}",
+        format_dt(call.dt),
+    ]
 
 
 def print_telethon_obj(obj, depth=5):
@@ -73,36 +67,39 @@ def print_telethon_obj(obj, depth=5):
     pprint(result, width=80, sort_dicts=False)
 
 
-def group_by_ticker(
+def group_by_ticker_chain(
     calls: list[CoinCall], multi_only=False
 ) -> dict[str, list[CoinCall]]:
-    ticker_to_calls: dict[str, list[CoinCall]] = defaultdict(list)
+    ticker_chain_to_calls: dict[(str, str), list[CoinCall]] = defaultdict(list)
     for call in calls:
-        ticker_to_calls[call.ticker].append(call)
+        ticker_chain_to_calls[(call.ticker, call.chain)].append(call)
 
     # sort calls for a given ticker by dt
-    ticker_to_calls = {
-        ticker: sorted(calls, key=lambda call: call.dt)
-        for ticker, calls in ticker_to_calls.items()
+    ticker_chain_to_calls = {
+        ticker_chain: sorted(calls, key=lambda call: call.dt)
+        for ticker_chain, calls in ticker_chain_to_calls.items()
     }
 
     # filter if multicalled only
     if multi_only:
-        ticker_to_calls = {
-            ticker: calls for ticker, calls in ticker_to_calls.items() if len(calls) > 1
+        ticker_chain_to_calls = {
+            ticker_chain: calls
+            for ticker_chain, calls in ticker_chain_to_calls.items()
+            if len(calls) > 1
         }
-    return ticker_to_calls
+    return ticker_chain_to_calls
 
 
-def format_ticker_calls(ticker_to_calls: dict[str, list[CoinCall]]) -> str:
+def format_calls(ticker_chain_to_calls: dict[(str, str), list[CoinCall]]) -> str:
     sorted_tickers = sorted(
-        ticker_to_calls.items(),
+        ticker_chain_to_calls.items(),
         key=lambda kv: max([call.fdv for call in kv[1]]),
         reverse=True,
     )
     res = ""
-    for ticker, calls in sorted_tickers:
-        res += f"{ticker}\n"
+    for (ticker, chain), calls in sorted_tickers:
+        res += f"{ticker} ({chain})\n"
+        # TODO: remove extra text re:ticker/chain
         res += f"{tabulate([coincall_to_row(call) for call in calls])}\n"
         res += "\n"
     return res

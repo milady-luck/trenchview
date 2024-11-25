@@ -13,7 +13,10 @@ class UnparsedRickbotCall(NamedTuple):
 # NOTE: holds just the information for formatted output
 class CoinCall(NamedTuple):
     caller: str
+
+    # TODO: add CA
     ticker: str
+    chain: str
     fdv: float
 
     dt: datetime

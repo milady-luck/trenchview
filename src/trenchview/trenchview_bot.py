@@ -10,7 +10,7 @@ from telegram.error import Conflict
 from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes
 
 from trenchview.cmds import get_recent_tg_calls
-from trenchview.formatting import format_ticker_calls, group_by_ticker
+from trenchview.formatting import format_calls, group_by_ticker_chain
 from trenchview.logger import setup_logging
 from trenchview.tg.telethon import build_telethon_client
 
@@ -94,8 +94,8 @@ async def recent_calls_command(update: Update, context: ContextTypes.DEFAULT_TYP
     try:
         calls = await get_recent_tg_calls(tg_client, group_id, prev_time)
 
-        ticker_to_calls = group_by_ticker(calls)
-        await update.message.reply_text(format_ticker_calls(ticker_to_calls))
+        ticker_chain_to_calls = group_by_ticker_chain(calls)
+        await update.message.reply_text(format_calls(ticker_chain_to_calls))
     except Exception as e:
         logger.error(f"error: {e}")
         await update.message.reply_text("unknown error! dm @paperun on tg for details")
@@ -119,7 +119,6 @@ def main():
     app = ApplicationBuilder().token(BOT_TOKEN).build()
 
     app.add_handler(CommandHandler("recent_calls", recent_calls_command))
-
     app.add_error_handler(error_handler)
 
     # Start the bot
