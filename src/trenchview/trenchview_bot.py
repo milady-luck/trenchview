@@ -6,6 +6,7 @@ from zoneinfo import ZoneInfo
 
 import humanize
 from telegram import Update
+from telegram.error import Conflict
 from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes
 
 from trenchview.cmds import get_recent_tg_calls
@@ -100,6 +101,16 @@ async def recent_calls_command(update: Update, context: ContextTypes.DEFAULT_TYP
         await update.message.reply_text("unknown error! dm @paperun on tg for details")
 
 
+def error_handler(logger):
+    def _error_handler(update, context):
+        # TODO: more here when I see errors
+        logger.error(f"Update {update} caused error {context.error}")
+        if isinstance(context.error, Conflict):
+            logger.error("Multiple bot instances detected!")
+
+    return _error_handler(logger)
+
+
 def main():
     setup_logging(logging.INFO)
     logger = logging.getLogger("trenchview.bot")
@@ -108,6 +119,8 @@ def main():
     app = ApplicationBuilder().token(BOT_TOKEN).build()
 
     app.add_handler(CommandHandler("recent_calls", recent_calls_command))
+
+    app.add_error_handler(error_handler)
 
     # Start the bot
     logger.info("trenchview-bot is running...")
