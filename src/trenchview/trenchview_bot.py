@@ -119,7 +119,7 @@ def main():
     app = ApplicationBuilder().token(BOT_TOKEN).build()
 
     app.add_handler(CommandHandler("recent_calls", recent_calls_command))
-    app.add_error_handler(error_handler)
+    app.add_error_handler(error_handler(logger))
 
     # Start the bot
     logger.info("trenchview-bot is running...")
