@@ -20,17 +20,27 @@ def format_dt(dt: datetime):
     return local_dt.strftime(DT_FORMAT)
 
 
+# TODO: fix these when I change CoinCall
+
+
 # NOTE: change this and the method below in lock step! might be worth writing a test...
 def coincall_to_row(call: CoinCall) -> list[str]:
-    return [call.caller, call.ticker, f"{call.fdv:,.2f}", format_dt(call.dt)]
+    return [
+        call.caller,
+        call.ticker,
+        call.chain,
+        f"{call.fdv:,.2f}",
+        format_dt(call.dt),
+    ]
 
 
 def row_to_coincall(row: list[str]) -> CoinCall:
     return CoinCall(
-        row[0],
-        row[1],
-        float(row[2].replace(",", "")),
-        datetime.strptime(f"{row[3]} {row[4]}", DT_FORMAT),
+        caller=row[0],
+        ticker=row[1],
+        chain=row[2],
+        fdv=float(row[3].replace(",", "")),
+        dt=datetime.strptime(f"{row[4]}", DT_FORMAT),
     )
 
 

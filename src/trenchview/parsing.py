@@ -88,14 +88,10 @@ def parse_coin_call(msg: UnparsedRickbotCall) -> CoinCall:
     if not parsed_resp:
         return None
 
-    # TODO: where should this be specified?
-    # temp_group_id = -1001639107971
-    # tg_url = get_tg_url(temp_group_id, msg.resp_msg.msg_id)
-
-    # TODO: timestamp
     return CoinCall(
-        msg.caller,
-        parsed_resp.ticker,
-        parsed_resp.call_fdv,
-        msg.dt,
+        caller=msg.caller,
+        ticker=parsed_resp.ticker,
+        chain=parsed_resp.chain,
+        fdv=parsed_resp.call_fdv,
+        dt=msg.dt,
     )

@@ -1,4 +1,12 @@
-from trenchview.parsing import ParsedCoinCallResp, find_ticker, parse_coin_call_resp
+from datetime import datetime
+
+from trenchview.custom_types import CoinCall, UnparsedRickbotCall
+from trenchview.parsing import (
+    ParsedCoinCallResp,
+    find_ticker,
+    parse_coin_call,
+    parse_coin_call_resp,
+)
 
 
 class TestFindTicker:
@@ -83,5 +91,37 @@ TRO⋅STB⋅PHO⋅BLX⋅EXP⋅RUG⋅TW
 📢 AD: Snipe, trade & win 10 $SOL - DEX3"""
         parsed = parse_coin_call_resp(s)
         expected = ParsedCoinCallResp("$WIF", "Solana", 1_700_000_000)
+
+        assert parsed == expected
+
+
+class TestParseCoinCall:
+    # E2E test that mostly serves to make sure we're running both methods properly
+
+    def test_e2e(self):
+        rickbot_msg = """💊 Nailong [25.7M/52.1%] $NAILONG 🔼
+🌐 Solana @ Raydium
+💰 USD: $0.02571
+💎 FDV: $25.7M 
+💦 Liq: $1.1M 🐡 [x46.5] 
+📊 Vol: $3M 🕰️ Age: 1mo
+⛰️ ATH: $27.8M [6d ago] 
+📈 1H: 38.9% ⋅ $658K 🅑 251 🅢 382
+👥 TH: 2.3⋅2.1⋅2.1⋅2.1⋅1.8 [18%]
+🖨️ Mint: ✅ ⋅ LP: 🔥
+🧰 More: 📊 🫧 🎨 💪 💬 🌍 🐦 [♺]
+
+mkvXiNBpa8uiSApe5BrhWVJaT87pJFTZxRy7zFapump
+MAE⋅BAN⋅BNK⋅SHU⋅PEP⋅MVX⋅DEX
+TRO⋅STB⋅PHO⋅BLX⋅GMG⋅EXP⋅TW
+
+🏆 lasercat397 @ 1.3M⋅19x⋅1mo 👀 8.6K
+📈 TIP: Trade pump.fun on Photon"""
+        dt = datetime.now()
+        caller = "milady"
+        unparsed = UnparsedRickbotCall(caller, rickbot_msg, dt)
+
+        parsed = parse_coin_call(unparsed)
+        expected = CoinCall(caller, "NAILONG", "Solana", 25_700_000.0, dt)
 
         assert parsed == expected
