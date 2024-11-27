@@ -8,7 +8,9 @@ from trenchview.custom_types import (
 )
 
 EX_CHAIN_RE = r"(\w+)\s+@\s+(\w+)"
-FDV_RE = r"\$(\d+(?:\.\d+)?(?:[KMB])?)"
+
+# TODO: this is buggy
+FDV_RE = r"(\d+(?:\.\d+)?(?:[KMB])?)"
 
 TICKER_RE = r"(?<=\$)(\$*[^\s]+)"
 
@@ -51,35 +53,44 @@ class ParsedCoinCallResp(NamedTuple):
 
 
 def parse_coin_call_resp(msg: str) -> ParsedCoinCallResp:
-    logger = logging.getLogger("trenchview")
+    logger = logging.getLogger("trenchview.parsing")
 
-    # TODO: when does this happen?
-    if msg is None:
+    blocks = msg.strip().split("\n\n")
+    if len(blocks) < 2:
         return None
 
-    lines = msg.splitlines()
+    metrics_block = blocks[0]
+    metric_lines = metrics_block.splitlines()
+    ticker = find_ticker(metric_lines[0])
 
-    if len(lines) < 15:
-        return None
-
-    ticker = find_ticker(lines[0])
+    # parse ticker
     if not ticker:
+        logger.warning(f"couldn't find ticker in {msg}")
         return None
 
-    ex_chain_match = re.search(EX_CHAIN_RE, lines[1])
-    if not ex_chain_match:
-        # TODO: this can happen for pump.fun non-graduated coins!
-        logger.warning(f"couldn't find chain/exchange str in {msg}")
-        chain = "Unknown"
+    # parse chain
+    if metric_lines[1].startswith("🌐"):
+        ex_chain_match = re.search(EX_CHAIN_RE, metric_lines[1])
+        if not ex_chain_match:
+            chain = None
+        else:
+            chain = ex_chain_match.group(1)
+
     else:
-        chain = ex_chain_match.group(1)
+        chain = None
 
-    call_fdv = parse_fdv(lines[3])
-    if not call_fdv:
-        logger.warning(f"couldn't find call fdv in {msg}")
+    # parse fdv
+    fdv_line = next(line for line in metric_lines if line[0] == "💎")
+    if fdv_line is None:
+        logger.warning(f"couldn't find fdv in {msg}")
         return None
+    else:
+        fdv = parse_fdv(fdv_line)
 
-    return ParsedCoinCallResp(ticker, chain, call_fdv)
+    # ca_block = blocks[1]
+    # TODO: parse out ca
+
+    return ParsedCoinCallResp(ticker, chain, fdv)
 
 
 # NOTE: returns none if not a coin call

@@ -94,6 +94,27 @@ TRO⋅STB⋅PHO⋅BLX⋅EXP⋅RUG⋅TW
 
         assert parsed == expected
 
+    def test_missed_coins(self):
+        s1 = """💊 SIGMA - $SIGMA
+💎 FDV: 69.7M ✅ 🕰️ 4mo ⋅ 👑
+👀 Hits: 66 ⋅ last seen: 1mo
+💬 Comments: 303 ⋅ last reply: 1h
+🧑‍💻 sigmaonsol ⋅ TG ⋅ 𝕏 [♺] ⋅ Web ⋅ /dp: ✅
+🧬 $BETA [474K] ⋅ $PBJ ⋅ $STICKY ⋅ $BAG [21]
+👥 TH: 2.3⋅1.8⋅1.6⋅1.5⋅1.4 [14%]
+🧰 More: 🫧 🎨
+
+5SVG3T9CNQsm2kEwzbRq6hASqh1oGfjqTtLXYUibpump
+MAE⋅BAN⋅BNK⋅SHU⋅PEP⋅MVX⋅DEX
+TRO⋅STB⋅PHO⋅BLX⋅GMG⋅EXP⋅TW
+"""
+        parsed = parse_coin_call_resp(s1)
+        # TODO: can detect from ca in the future
+        # NOTE: these messages are len 11
+        expected = ParsedCoinCallResp("SIGMA", None, 69_700_000)
+
+        assert parsed == expected
+
 
 class TestParseCoinCall:
     # E2E test that mostly serves to make sure we're running both methods properly
