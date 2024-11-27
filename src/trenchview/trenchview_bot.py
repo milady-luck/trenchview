@@ -23,6 +23,8 @@ DEFAULT_TZ = ZoneInfo("America/Los_Angeles")
 # tg max response length
 MAX_RESP_LEN = 4095
 
+LAB_USER_IDS = [int(x) for x in os.getenv("TRENCHVIEW_LAB_USER_IDS").split()]
+
 
 def parse_duration(dur_str) -> timedelta:
     if not dur_str:
@@ -70,7 +72,15 @@ def format_duration(td: timedelta) -> str:
 
 
 async def recent_calls_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    # TODO: may make sense in the future to make this a decorator
     logger = logging.getLogger("trenchview.bot")
+
+    user = update.effective_user
+    logger.info(f"received message from user {user.username}")
+
+    if user.id not in LAB_USER_IDS:
+        await update.message.reply_text("you're not authorized to call this method!")
+        return
 
     duration = DEFAULT_DURATION
     user = update.effective_user
@@ -138,6 +148,7 @@ def main():
 
     # Start the bot
     logger.info("trenchview-bot is running...")
+    logger.info(f"{len(LAB_USER_IDS)} lab users found")
     app.run_polling(poll_interval=1)
 
 

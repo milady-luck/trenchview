@@ -86,5 +86,29 @@ def last_msg(group_id):
     print_telethon_obj(message)
 
 
+async def get_group_members(client, group_id):
+    logger = logging.getLogger("trenchview.tg.get-group-members")
+
+    async with client:
+        logger.info(f"getting group members in {group_id}")
+
+        # group = await client.get_entity(group_id)
+        participants = await client.get_participants(group_id)
+        logger.info(f"found {len(participants)} participants")
+
+        return participants
+
+
+@cli.command()
+@click.option("--group-id", default=-1001639107971)  # default to the lab
+def group_members(group_id):
+    tg_client = build_telethon_client("trenchview-group-members")
+
+    loop = asyncio.get_event_loop()
+    participants = loop.run_until_complete(get_group_members(tg_client, group_id))
+
+    print([p.id for p in participants])
+
+
 if __name__ == "__main__":
     cli()
