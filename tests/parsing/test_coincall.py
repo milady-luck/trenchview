@@ -109,10 +109,27 @@ MAE⋅BAN⋅BNK⋅SHU⋅PEP⋅MVX⋅DEX
 TRO⋅STB⋅PHO⋅BLX⋅GMG⋅EXP⋅TW
 """
         parsed = parse_coin_call_resp(s1)
-        # TODO: can detect from ca in the future
-        # NOTE: these messages are len 11
         expected = ParsedCoinCallResp("SIGMA", None, 69_700_000)
+        assert parsed == expected
 
+        s2 = """💊 PopipoPopipoPopipoPo.. - $POPIPO
+💎 FDV: 95.7K 🕰️ 13m ⋅ 👑
+👀 Hits: 46 🔥 #4 ⋅ last seen: 1s
+💬 Comments: 43 ⋅ last reply: 2m
+🧑‍💻 DEV ⋅ /dp: No
+🧬 $DWD [1]
+👥 TH: 6.3⋅4.2⋅3.9⋅3.2⋅3.1 [31%]
+🧰 More: 🫧 🎨
+
+vdK7t1fBTYJFkxizPWpgGZS5RCsw4yGmT4AXsR6pump
+MAE⋅BAN⋅BNK⋅SHU⋅PEP⋅MVX⋅DEX
+TRO⋅STB⋅PHO⋅BLX⋅GMG⋅EXP⋅TW
+
+💨 You are first in this chat @ 95.7K
+🚀 TIP: Trade faster with Photon
+"""
+        parsed = parse_coin_call_resp(s2)
+        expected = ParsedCoinCallResp("POPIPO", None, 95_700)
         assert parsed == expected
 
 
