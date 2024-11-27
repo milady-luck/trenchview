@@ -1,6 +1,7 @@
 import logging
 import os
 import re
+import traceback
 from datetime import datetime, timedelta
 from zoneinfo import ZoneInfo
 
@@ -111,6 +112,7 @@ async def recent_calls_command(update: Update, context: ContextTypes.DEFAULT_TYP
 
     except Exception as e:
         logger.error(f"error: {e}")
+        logger.error(traceback.format_exc())
         await update.message.reply_text("unknown error! dm @paperun on tg for details")
 
 

@@ -100,6 +100,9 @@ def parse_coin_call_resp(msg: str) -> ParsedCoinCallResp:
         return None
     else:
         fdv = parse_fdv(fdv_line)
+        if not fdv:
+            logger.warning(f"couldn't find fdv in {msg}")
+            return None
 
     # parse ca
     ca = parse_ca(msg.strip().splitlines())
