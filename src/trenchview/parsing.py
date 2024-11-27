@@ -9,7 +9,6 @@ from trenchview.custom_types import (
 
 EX_CHAIN_RE = r"(\w+)\s+@\s+(\w+)"
 
-# TODO: this is buggy
 FDV_RE = r"(\d+(?:\.\d+)?(?:[KMB])?)"
 
 TICKER_RE = r"(?<=\$)(\$*[^\s]+)"
@@ -49,7 +48,9 @@ class ParsedCoinCallResp(NamedTuple):
     ticker: str
     chain: str
 
-    call_fdv: float
+    fdv: float
+
+    ca: str
 
 
 def parse_coin_call_resp(msg: str) -> ParsedCoinCallResp:
@@ -87,10 +88,10 @@ def parse_coin_call_resp(msg: str) -> ParsedCoinCallResp:
     else:
         fdv = parse_fdv(fdv_line)
 
-    # ca_block = blocks[1]
-    # TODO: parse out ca
+    ca_block = blocks[1]
+    ca = ca_block.splitlines()[0].strip()
 
-    return ParsedCoinCallResp(ticker, chain, fdv)
+    return ParsedCoinCallResp(ticker=ticker, chain=chain, fdv=fdv, ca=ca)
 
 
 # NOTE: returns none if not a coin call
@@ -103,6 +104,7 @@ def parse_coin_call(msg: UnparsedRickbotCall) -> CoinCall:
         caller=msg.caller,
         ticker=parsed_resp.ticker,
         chain=parsed_resp.chain,
-        fdv=parsed_resp.call_fdv,
+        fdv=parsed_resp.fdv,
+        ca=parsed_resp.ca,
         dt=msg.dt,
     )

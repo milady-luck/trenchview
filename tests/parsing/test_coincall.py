@@ -43,7 +43,9 @@ CAL | MNZ | MAG | ORC | FLX | SRM
 🏆 [redacted] @ 15.6K 👀 211
 ⚔️ TIP: Farm Cambria Duel Arena"""
         parsed = parse_coin_call_resp(s)
-        expected = ParsedCoinCallResp("NICK", "Solana", 694_000.0)
+        expected = ParsedCoinCallResp(
+            "NICK", "Solana", 694_000.0, "G3q2zUkuxDCXMnhdBPujjPHPw9UTMDbXqzcc2UHM3jiy"
+        )
 
         assert parsed == expected
 
@@ -67,7 +69,12 @@ TRO⋅STB⋅PHO⋅BLX⋅GMG⋅EXP⋅TW
 🏆 lasercat397 @ 1.3M⋅19x⋅1mo 👀 8.6K
 📈 TIP: Trade pump.fun on Photon"""
         parsed = parse_coin_call_resp(s)
-        expected = ParsedCoinCallResp("NAILONG", "Solana", 25_700_000.0)
+        expected = ParsedCoinCallResp(
+            "NAILONG",
+            "Solana",
+            25_700_000.0,
+            "mkvXiNBpa8uiSApe5BrhWVJaT87pJFTZxRy7zFapump",
+        )
 
         assert parsed == expected
 
@@ -90,7 +97,12 @@ TRO⋅STB⋅PHO⋅BLX⋅EXP⋅RUG⋅TW
 🏆 rightcalibre @ 1.7B⋅2mo 👀 1950  # noqa: W29150
 📢 AD: Snipe, trade & win 10 $SOL - DEX3"""
         parsed = parse_coin_call_resp(s)
-        expected = ParsedCoinCallResp("$WIF", "Solana", 1_700_000_000)
+        expected = ParsedCoinCallResp(
+            "$WIF",
+            "Solana",
+            1_700_000_000,
+            "EKpQGSJtjMFqKZ9KQanSqYXRcF8fBopzLHYxdM65zcjm",
+        )
 
         assert parsed == expected
 
@@ -109,7 +121,9 @@ MAE⋅BAN⋅BNK⋅SHU⋅PEP⋅MVX⋅DEX
 TRO⋅STB⋅PHO⋅BLX⋅GMG⋅EXP⋅TW
 """
         parsed = parse_coin_call_resp(s1)
-        expected = ParsedCoinCallResp("SIGMA", None, 69_700_000)
+        expected = ParsedCoinCallResp(
+            "SIGMA", None, 69_700_000, "5SVG3T9CNQsm2kEwzbRq6hASqh1oGfjqTtLXYUibpump"
+        )
         assert parsed == expected
 
         s2 = """💊 PopipoPopipoPopipoPo.. - $POPIPO
@@ -129,7 +143,9 @@ TRO⋅STB⋅PHO⋅BLX⋅GMG⋅EXP⋅TW
 🚀 TIP: Trade faster with Photon
 """
         parsed = parse_coin_call_resp(s2)
-        expected = ParsedCoinCallResp("POPIPO", None, 95_700)
+        expected = ParsedCoinCallResp(
+            "POPIPO", None, 95_700, "vdK7t1fBTYJFkxizPWpgGZS5RCsw4yGmT4AXsR6pump"
+        )
         assert parsed == expected
 
 
@@ -160,6 +176,13 @@ TRO⋅STB⋅PHO⋅BLX⋅GMG⋅EXP⋅TW
         unparsed = UnparsedRickbotCall(caller, rickbot_msg, dt)
 
         parsed = parse_coin_call(unparsed)
-        expected = CoinCall(caller, "NAILONG", "Solana", 25_700_000.0, dt)
+        expected = CoinCall(
+            caller=caller,
+            ticker="NAILONG",
+            chain="Solana",
+            fdv=25_700_000.0,
+            dt=dt,
+            ca="mkvXiNBpa8uiSApe5BrhWVJaT87pJFTZxRy7zFapump",
+        )
 
         assert parsed == expected
