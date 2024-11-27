@@ -94,15 +94,15 @@ def parse_coin_call_resp(msg: str) -> ParsedCoinCallResp:
         chain = None
 
     # parse fdv
-    fdv_line = next(line for line in metric_lines if line[0] == "💎")
-    if fdv_line is None:
+    possible_fdv_lines = [line for line in metric_lines if line[0] == "💎"]
+    if len(possible_fdv_lines) == 0:
         logger.warning(f"couldn't find fdv in {msg}")
         return None
-    else:
-        fdv = parse_fdv(fdv_line)
-        if not fdv:
-            logger.warning(f"couldn't find fdv in {msg}")
-            return None
+
+    fdv = parse_fdv(possible_fdv_lines[0])
+    if not fdv:
+        logger.warning(f"couldn't find fdv in {msg}")
+        return None
 
     # parse ca
     ca = parse_ca(msg.strip().splitlines())
