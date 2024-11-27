@@ -44,6 +44,19 @@ def parse_fdv(fdv_line):
     return float(amount_str) * multiplier
 
 
+ETH_RE = r"0x[a-fA-F0-9]{40}"
+SOL_RE = r"[1-9A-HJ-NP-Za-km-z]{32,44}"
+
+
+def parse_ca(lines):
+    for line in lines:
+        candidate = line.strip()
+        if re.match(ETH_RE, candidate) or re.match(SOL_RE, candidate):
+            return candidate
+
+    return None
+
+
 class ParsedCoinCallResp(NamedTuple):
     ticker: str
     chain: str
@@ -88,8 +101,8 @@ def parse_coin_call_resp(msg: str) -> ParsedCoinCallResp:
     else:
         fdv = parse_fdv(fdv_line)
 
-    ca_block = blocks[1]
-    ca = ca_block.splitlines()[0].strip()
+    # parse ca
+    ca = parse_ca(msg.strip().splitlines())
 
     return ParsedCoinCallResp(ticker=ticker, chain=chain, fdv=fdv, ca=ca)
 

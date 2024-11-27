@@ -120,6 +120,7 @@ TRO⋅STB⋅PHO⋅BLX⋅EXP⋅RUG⋅TW
 MAE⋅BAN⋅BNK⋅SHU⋅PEP⋅MVX⋅DEX
 TRO⋅STB⋅PHO⋅BLX⋅GMG⋅EXP⋅TW
 """
+        # TODO: change these tests to deduce chain from ca
         parsed = parse_coin_call_resp(s1)
         expected = ParsedCoinCallResp(
             "SIGMA", None, 69_700_000, "5SVG3T9CNQsm2kEwzbRq6hASqh1oGfjqTtLXYUibpump"
@@ -145,6 +146,34 @@ TRO⋅STB⋅PHO⋅BLX⋅GMG⋅EXP⋅TW
         parsed = parse_coin_call_resp(s2)
         expected = ParsedCoinCallResp(
             "POPIPO", None, 95_700, "vdK7t1fBTYJFkxizPWpgGZS5RCsw4yGmT4AXsR6pump"
+        )
+        assert parsed == expected
+
+    def test_base_ca(self):
+        s = """🟢 Dolphin Zone [1.5M/-51.3%] $EEEEEEEEE 🔼
+🌐 Base @ Uniswap V3
+💰 USD: $0.00001469
+💎 FDV: $1.5M 
+💦 Liq: $532K [x5.5] 
+📊 Vol: $869K 🕰️ Age: 3d
+⛰️ ATH: $5M [1d ago] 
+📈 1H: 15% ⋅ $33.4K 🅑 26 Ⓢ 27
+🧰 More: 📊 🫧 🎨 💪 💬 SOC
+
+SIM: ✅ ⋅ HP: ✅ ⋅ T: 0/0
+TH: 525 ⋅ AT: 0 ⋅ GAS: 103K
+TOP: 20.1⋅1.6⋅1.6⋅1.4⋅1.3⋅1.1 [31%]
+
+0x00ddE4d2F08497bcEC6F5E0666F63e14B3a1Dab9
+BAN⋅MAE⋅SGM⋅ALF⋅DEX⋅DT⋅UNI
+SHU⋅PHO⋅BLX⋅GMG⋅EXP⋅TW⋅SOC
+
+🏆 memetic_power @ 1.6M⋅2d 👀 645
+💊 TIP: Try Memescope on Photon
+"""
+        parsed = parse_coin_call_resp(s)
+        expected = ParsedCoinCallResp(
+            "EEEEEEEEE", "Base", 1_500_000, "0x00ddE4d2F08497bcEC6F5E0666F63e14B3a1Dab9"
         )
         assert parsed == expected
 
