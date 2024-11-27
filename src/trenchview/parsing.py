@@ -8,7 +8,8 @@ from trenchview.custom_types import (
 )
 
 EX_CHAIN_RE = r"(\w+)\s+@\s+(\w+)"
-FDV_RE = r"\$(\d+(?:\.\d+)?(?:[KMB])?)"
+
+FDV_RE = r"(\d+(?:\.\d+)?(?:[KMB])?)"
 
 TICKER_RE = r"(?<=\$)(\$*[^\s]+)"
 
@@ -43,43 +44,67 @@ def parse_fdv(fdv_line):
     return float(amount_str) * multiplier
 
 
+ETH_RE = r"0x[a-fA-F0-9]{40}"
+SOL_RE = r"[1-9A-HJ-NP-Za-km-z]{32,44}"
+
+
+def parse_ca(lines):
+    for line in lines:
+        candidate = line.strip()
+        if re.match(ETH_RE, candidate) or re.match(SOL_RE, candidate):
+            return candidate
+
+    return None
+
+
 class ParsedCoinCallResp(NamedTuple):
     ticker: str
     chain: str
 
-    call_fdv: float
+    fdv: float
+
+    ca: str
 
 
 def parse_coin_call_resp(msg: str) -> ParsedCoinCallResp:
-    logger = logging.getLogger("trenchview")
+    logger = logging.getLogger("trenchview.parsing")
 
-    # TODO: when does this happen?
-    if msg is None:
+    blocks = msg.strip().split("\n\n")
+    if len(blocks) < 2:
         return None
 
-    lines = msg.splitlines()
+    metrics_block = blocks[0]
+    metric_lines = metrics_block.splitlines()
+    ticker = find_ticker(metric_lines[0])
 
-    if len(lines) < 15:
-        return None
-
-    ticker = find_ticker(lines[0])
+    # parse ticker
     if not ticker:
+        logger.warning(f"couldn't find ticker in {msg}")
         return None
 
-    ex_chain_match = re.search(EX_CHAIN_RE, lines[1])
-    if not ex_chain_match:
-        # TODO: this can happen for pump.fun non-graduated coins!
-        logger.warning(f"couldn't find chain/exchange str in {msg}")
-        chain = "Unknown"
+    # parse chain
+    if metric_lines[1].startswith("🌐"):
+        ex_chain_match = re.search(EX_CHAIN_RE, metric_lines[1])
+        if not ex_chain_match:
+            chain = None
+        else:
+            chain = ex_chain_match.group(1)
+
     else:
-        chain = ex_chain_match.group(1)
+        chain = None
 
-    call_fdv = parse_fdv(lines[3])
-    if not call_fdv:
-        logger.warning(f"couldn't find call fdv in {msg}")
+    # parse fdv
+    fdv_line = next(line for line in metric_lines if line[0] == "💎")
+    if fdv_line is None:
+        logger.warning(f"couldn't find fdv in {msg}")
         return None
+    else:
+        fdv = parse_fdv(fdv_line)
 
-    return ParsedCoinCallResp(ticker, chain, call_fdv)
+    # parse ca
+    ca = parse_ca(msg.strip().splitlines())
+
+    return ParsedCoinCallResp(ticker=ticker, chain=chain, fdv=fdv, ca=ca)
 
 
 # NOTE: returns none if not a coin call
@@ -92,6 +117,7 @@ def parse_coin_call(msg: UnparsedRickbotCall) -> CoinCall:
         caller=msg.caller,
         ticker=parsed_resp.ticker,
         chain=parsed_resp.chain,
-        fdv=parsed_resp.call_fdv,
+        fdv=parsed_resp.fdv,
+        ca=parsed_resp.ca,
         dt=msg.dt,
     )

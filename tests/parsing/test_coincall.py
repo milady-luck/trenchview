@@ -43,7 +43,9 @@ CAL | MNZ | MAG | ORC | FLX | SRM
 🏆 [redacted] @ 15.6K 👀 211
 ⚔️ TIP: Farm Cambria Duel Arena"""
         parsed = parse_coin_call_resp(s)
-        expected = ParsedCoinCallResp("NICK", "Solana", 694_000.0)
+        expected = ParsedCoinCallResp(
+            "NICK", "Solana", 694_000.0, "G3q2zUkuxDCXMnhdBPujjPHPw9UTMDbXqzcc2UHM3jiy"
+        )
 
         assert parsed == expected
 
@@ -67,7 +69,12 @@ TRO⋅STB⋅PHO⋅BLX⋅GMG⋅EXP⋅TW
 🏆 lasercat397 @ 1.3M⋅19x⋅1mo 👀 8.6K
 📈 TIP: Trade pump.fun on Photon"""
         parsed = parse_coin_call_resp(s)
-        expected = ParsedCoinCallResp("NAILONG", "Solana", 25_700_000.0)
+        expected = ParsedCoinCallResp(
+            "NAILONG",
+            "Solana",
+            25_700_000.0,
+            "mkvXiNBpa8uiSApe5BrhWVJaT87pJFTZxRy7zFapump",
+        )
 
         assert parsed == expected
 
@@ -90,8 +97,84 @@ TRO⋅STB⋅PHO⋅BLX⋅EXP⋅RUG⋅TW
 🏆 rightcalibre @ 1.7B⋅2mo 👀 1950  # noqa: W29150
 📢 AD: Snipe, trade & win 10 $SOL - DEX3"""
         parsed = parse_coin_call_resp(s)
-        expected = ParsedCoinCallResp("$WIF", "Solana", 1_700_000_000)
+        expected = ParsedCoinCallResp(
+            "$WIF",
+            "Solana",
+            1_700_000_000,
+            "EKpQGSJtjMFqKZ9KQanSqYXRcF8fBopzLHYxdM65zcjm",
+        )
 
+        assert parsed == expected
+
+    def test_missed_coins(self):
+        s1 = """💊 SIGMA - $SIGMA
+💎 FDV: 69.7M ✅ 🕰️ 4mo ⋅ 👑
+👀 Hits: 66 ⋅ last seen: 1mo
+💬 Comments: 303 ⋅ last reply: 1h
+🧑‍💻 sigmaonsol ⋅ TG ⋅ 𝕏 [♺] ⋅ Web ⋅ /dp: ✅
+🧬 $BETA [474K] ⋅ $PBJ ⋅ $STICKY ⋅ $BAG [21]
+👥 TH: 2.3⋅1.8⋅1.6⋅1.5⋅1.4 [14%]
+🧰 More: 🫧 🎨
+
+5SVG3T9CNQsm2kEwzbRq6hASqh1oGfjqTtLXYUibpump
+MAE⋅BAN⋅BNK⋅SHU⋅PEP⋅MVX⋅DEX
+TRO⋅STB⋅PHO⋅BLX⋅GMG⋅EXP⋅TW
+"""
+        # TODO: change these tests to deduce chain from ca
+        parsed = parse_coin_call_resp(s1)
+        expected = ParsedCoinCallResp(
+            "SIGMA", None, 69_700_000, "5SVG3T9CNQsm2kEwzbRq6hASqh1oGfjqTtLXYUibpump"
+        )
+        assert parsed == expected
+
+        s2 = """💊 PopipoPopipoPopipoPo.. - $POPIPO
+💎 FDV: 95.7K 🕰️ 13m ⋅ 👑
+👀 Hits: 46 🔥 #4 ⋅ last seen: 1s
+💬 Comments: 43 ⋅ last reply: 2m
+🧑‍💻 DEV ⋅ /dp: No
+🧬 $DWD [1]
+👥 TH: 6.3⋅4.2⋅3.9⋅3.2⋅3.1 [31%]
+🧰 More: 🫧 🎨
+
+vdK7t1fBTYJFkxizPWpgGZS5RCsw4yGmT4AXsR6pump
+MAE⋅BAN⋅BNK⋅SHU⋅PEP⋅MVX⋅DEX
+TRO⋅STB⋅PHO⋅BLX⋅GMG⋅EXP⋅TW
+
+💨 You are first in this chat @ 95.7K
+🚀 TIP: Trade faster with Photon
+"""
+        parsed = parse_coin_call_resp(s2)
+        expected = ParsedCoinCallResp(
+            "POPIPO", None, 95_700, "vdK7t1fBTYJFkxizPWpgGZS5RCsw4yGmT4AXsR6pump"
+        )
+        assert parsed == expected
+
+    def test_base_ca(self):
+        s = """🟢 Dolphin Zone [1.5M/-51.3%] $EEEEEEEEE 🔼
+🌐 Base @ Uniswap V3
+💰 USD: $0.00001469
+💎 FDV: $1.5M 
+💦 Liq: $532K [x5.5] 
+📊 Vol: $869K 🕰️ Age: 3d
+⛰️ ATH: $5M [1d ago] 
+📈 1H: 15% ⋅ $33.4K 🅑 26 Ⓢ 27
+🧰 More: 📊 🫧 🎨 💪 💬 SOC
+
+SIM: ✅ ⋅ HP: ✅ ⋅ T: 0/0
+TH: 525 ⋅ AT: 0 ⋅ GAS: 103K
+TOP: 20.1⋅1.6⋅1.6⋅1.4⋅1.3⋅1.1 [31%]
+
+0x00ddE4d2F08497bcEC6F5E0666F63e14B3a1Dab9
+BAN⋅MAE⋅SGM⋅ALF⋅DEX⋅DT⋅UNI
+SHU⋅PHO⋅BLX⋅GMG⋅EXP⋅TW⋅SOC
+
+🏆 memetic_power @ 1.6M⋅2d 👀 645
+💊 TIP: Try Memescope on Photon
+"""
+        parsed = parse_coin_call_resp(s)
+        expected = ParsedCoinCallResp(
+            "EEEEEEEEE", "Base", 1_500_000, "0x00ddE4d2F08497bcEC6F5E0666F63e14B3a1Dab9"
+        )
         assert parsed == expected
 
 
@@ -122,6 +205,13 @@ TRO⋅STB⋅PHO⋅BLX⋅GMG⋅EXP⋅TW
         unparsed = UnparsedRickbotCall(caller, rickbot_msg, dt)
 
         parsed = parse_coin_call(unparsed)
-        expected = CoinCall(caller, "NAILONG", "Solana", 25_700_000.0, dt)
+        expected = CoinCall(
+            caller=caller,
+            ticker="NAILONG",
+            chain="Solana",
+            fdv=25_700_000.0,
+            dt=dt,
+            ca="mkvXiNBpa8uiSApe5BrhWVJaT87pJFTZxRy7zFapump",
+        )
 
         assert parsed == expected
