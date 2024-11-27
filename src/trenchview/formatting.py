@@ -98,8 +98,9 @@ def format_calls(ticker_chain_to_calls: dict[(str, str), list[CoinCall]]) -> str
     )
     res = ""
     for (ticker, chain), calls in sorted_tickers:
-        res += f"{ticker} ({chain})\n"
-        # TODO: remove extra text re:ticker/chain
+        # TODO: don't show chain if none. show ca as well
+        ca = calls[0].ca
+        res += f"{ticker} ({chain}) - {ca}\n" if chain else f"{ticker} - {ca}\n"
         res += f"{tabulate([coincall_to_row(call) for call in calls])}\n"
         res += "\n"
     return res
